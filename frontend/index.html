@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BumpRadar — Is It Safe for Your Bump?</title>
+    <meta name="description" content="AI-powered ingredient safety checker for pregnancy. Paste your product's ingredients and instantly know what's safe.">
+    <meta property="og:title" content="BumpRadar — Pregnancy Ingredient Safety Checker">
+    <meta property="og:description" content="Scan any product's ingredients to check if they're safe during pregnancy. Free, instant, AI-powered.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bumpradar.app">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --safe: #22c55e;
+            --safe-bg: #f0fdf4;
+            --safe-border: #86efac;
+            --caution: #f59e0b;
+            --caution-bg: #fffbeb;
+            --caution-border: #fcd34d;
+            --avoid: #ef4444;
+            --avoid-bg: #fef2f2;
+            --avoid-border: #fca5a5;
+            --unknown: #8b5cf6;
+            --unknown-bg: #f5f3ff;
+            --unknown-border: #c4b5fd;
+            --bg: #faf9f7;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #6b7280;
+            --accent: #ec4899;
+            --accent-light: #fce7f3;
+            --border: #e5e7eb;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 24px 0 20px;
+        }
+
+        .logo {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            margin-right: 4px;
+        }
+
+        .tagline {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .input-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.2s;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .scan-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent), #d946ef);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+        }
+
+        .scan-btn:active {
+            transform: translateY(0);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .scan-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+
+        /* Results */
+        .results {
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Verdict Card */
+        .verdict-card {
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verdict-card.safe {
+            background: var(--safe-bg);
+            border-color: var(--safe-border);
+        }
+
+        .verdict-card.caution {
+            background: var(--caution-bg);
+            border-color: var(--caution-border);
+        }
+
+        .verdict-card.avoid {
+            background: var(--avoid-bg);
+            border-color: var(--avoid-border);
+        }
+
+        .verdict-card.unknown {
+            background: var(--unknown-bg);
+            border-color: var(--unknown-border);
+        }
+
+        .verdict-emoji {
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .verdict-label {
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .verdict-card.safe .verdict-label { color: #16a34a; }
+        .verdict-card.caution .verdict-label { color: #d97706; }
+        .verdict-card.avoid .verdict-label { color: #dc2626; }
+        .verdict-card.unknown .verdict-label { color: #7c3aed; }
+
+        .verdict-message {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .verdict-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* Watermark for screenshots */
+        .verdict-watermark {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            font-weight: 600;
+            opacity: 0.6;
+        }
+
+        /* Flagged Ingredients */
+        .flagged-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .flagged-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flagged-item {
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .flagged-item.avoid {
+            background: var(--avoid-bg);
+            border-left-color: var(--avoid);
+        }
+
+        .flagged-item.caution {
+            background: var(--caution-bg);
+            border-left-color: var(--caution);
+        }
+
+        .flagged-item.unknown {
+            background: var(--unknown-bg);
+            border-left-color: var(--unknown);
+        }
+
+        .flagged-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .flagged-name {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .flagged-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .flagged-badge.avoid {
+            background: var(--avoid);
+            color: white;
+        }
+
+        .flagged-badge.caution {
+            background: var(--caution);
+            color: white;
+        }
+
+        .flagged-badge.unknown {
+            background: var(--unknown);
+            color: white;
+        }
+
+        .flagged-reason {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 4px;
+        }
+
+        .flagged-alternative {
+            font-size: 13px;
+            color: var(--safe);
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .flagged-alternative::before {
+            content: '✅ Try instead: ';
+        }
+
+        /* Safe list */
+        .safe-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .safe-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #16a34a;
+        }
+
+        .safe-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .safe-chip {
+            background: var(--safe-bg);
+            color: #16a34a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--safe-border);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .disclaimer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Share button */
+        .share-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .share-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Scan again */
+        .scan-again-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .scan-again-btn:hover {
+            background: var(--accent-light);
+        }
+
+        /* Error state */
+        .error-msg {
+            background: var(--avoid-bg);
+            border: 1px solid var(--avoid-border);
+            color: #dc2626;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 16px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        /* Example buttons */
+        .examples {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .example-btn {
+            background: var(--accent-light);
+            color: var(--accent);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 16px 0;
+            margin-top: auto;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo"><span class="logo-icon">📡</span>BumpRadar</div>
+            <p class="tagline">Is it safe for your bump? Find out instantly.</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="input-section" id="inputSection">
+            <label class="input-label">Paste your product's ingredients 👇</label>
+            <p class="input-hint">Copy the ingredient list from the product label or website and paste it below.</p>
+            <textarea
+                id="ingredientInput"
+                placeholder="e.g. Water, Glycerin, Retinol, Niacinamide, Hyaluronic Acid, Fragrance, Methylparaben..."
+            ></textarea>
+            <div class="examples">
+                <button class="example-btn" onclick="loadExample('skincare')">Try: Skincare</button>
+                <button class="example-btn" onclick="loadExample('sunscreen')">Try: Sunscreen</button>
+                <button class="example-btn" onclick="loadExample('safe')">Try: Safe Product</button>
+            </div>
+            <button class="scan-btn" id="scanBtn" onclick="scanIngredients()">
+                🔍 Scan Ingredients
+            </button>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <!-- Verdict Card -->
+            <div class="verdict-card" id="verdictCard">
+                <span class="verdict-emoji" id="verdictEmoji"></span>
+                <div class="verdict-label" id="verdictLabel"></div>
+                <div class="verdict-message" id="verdictMessage"></div>
+                <div class="verdict-stats" id="verdictStats"></div>
+                <div class="verdict-watermark">bumpradar.app — free pregnancy ingredient checker</div>
+            </div>
+
+            <!-- Flagged Ingredients -->
+            <div class="flagged-section" id="flaggedSection">
+                <div class="flagged-title">⚠️ Flagged Ingredients</div>
+                <div id="flaggedList"></div>
+            </div>
+
+            <!-- Safe Ingredients -->
+            <div class="safe-section" id="safeSection">
+                <div class="safe-title">✅ Safe Ingredients</div>
+                <div class="safe-list" id="safeList"></div>
+            </div>
+
+            <!-- Actions -->
+            <button class="share-btn" onclick="shareResults()">📤 Share Results</button>
+            <button class="scan-again-btn" onclick="scanAgain()">🔄 Scan Another Product</button>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            ⚕️ <strong>Not medical advice.</strong> BumpRadar is a decision-support tool.
+            Always consult your healthcare provider about product safety during pregnancy.
+            <br><br>
+            Built with 💕 for expecting parents
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span class="footer-text">© 2026 BumpRadar · <a href="#" style="color: var(--accent);">Privacy</a></span>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = '/api/v1/scan/';
+
+        const EXAMPLES = {
+            skincare: 'Water, Glycerin, Retinol, Niacinamide, Hyaluronic Acid, Fragrance, Methylparaben, Dimethicone, Phenoxyethanol',
+            sunscreen: 'Water, Oxybenzone, Octinoxate, Avobenzone, Homosalate, Glycerin, Dimethicone, Vitamin E, Fragrance',
+            safe: 'Water, Glycerin, Hyaluronic Acid, Niacinamide, Ceramides, Squalane, Vitamin C, Zinc Oxide, Shea Butter, Aloe Vera'
+        };
+
+        function loadExample(type) {
+            document.getElementById('ingredientInput').value = EXAMPLES[type];
+        }
+
+        async function scanIngredients() {
+            const input = document.getElementById('ingredientInput').value.trim();
+            const btn = document.getElementById('scanBtn');
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Validate
+            if (!input || input.length < 3) {
+                errorMsg.textContent = 'Please paste an ingredient list first!';
+                errorMsg.classList.add('visible');
+                return;
+            }
+
+            errorMsg.classList.remove('visible');
+
+            // Loading state
+            btn.disabled = true;
+            btn.classList.add('loading');
+            btn.textContent = '🔍 Scanning...';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ingredient_text: input })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                renderResults(data);
+
+            } catch (err) {
+                errorMsg.textContent = `Something went wrong: ${err.message}. Please try again.`;
+                errorMsg.classList.add('visible');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.textContent = '🔍 Scan Ingredients';
+            }
+        }
+
+        function renderResults(data) {
+            const results = document.getElementById('results');
+            const inputSection = document.getElementById('inputSection');
+
+            // Hide input, show results
+            inputSection.style.display = 'none';
+            results.classList.add('visible');
+
+            // Verdict card
+            const card = document.getElementById('verdictCard');
+            const emoji = document.getElementById('verdictEmoji');
+            const label = document.getElementById('verdictLabel');
+            const message = document.getElementById('verdictMessage');
+            const stats = document.getElementById('verdictStats');
+
+            // Remove old classes
+            card.className = 'verdict-card';
+
+            const safetyConfig = {
+                safe: { emoji: '✅', label: 'All Clear!', class: 'safe' },
+                caution: { emoji: '⚠️', label: 'Use With Caution', class: 'caution' },
+                avoid: { emoji: '🚫', label: 'Not Recommended', class: 'avoid' },
+                unknown: { emoji: '❓', label: 'Uncertain', class: 'unknown' }
+            };
+
+            const config = safetyConfig[data.overall_safety] || safetyConfig.unknown;
+            card.classList.add(config.class);
+            emoji.textContent = config.emoji;
+            label.textContent = config.label;
+            message.textContent = data.verdict_message;
+
+            // Stats
+            const safeCount = data.total_ingredients_analyzed - data.flagged_ingredients.length;
+            const flaggedCount = data.flagged_ingredients.length;
+            stats.innerHTML = `
+                <div class="stat">
+                    <div class="stat-number" style="color: var(--safe)">${safeCount}</div>
+                    <div class="stat-label">Safe</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" style="color: var(--caution)">${flaggedCount}</div>
+                    <div class="stat-label">Flagged</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">${data.total_ingredients_analyzed}</div>
+                    <div class="stat-label">Total</div>
+                </div>
+            `;
+
+            // Flagged ingredients
+            const flaggedSection = document.getElementById('flaggedSection');
+            const flaggedList = document.getElementById('flaggedList');
+            flaggedList.innerHTML = '';
+
+            if (data.flagged_ingredients.length === 0) {
+                flaggedSection.style.display = 'none';
+            } else {
+                flaggedSection.style.display = 'block';
+                data.flagged_ingredients.forEach(ing => {
+                    const item = document.createElement('div');
+                    item.className = `flagged-item ${ing.safety_level}`;
+                    item.innerHTML = `
+                        <div class="flagged-item-header">
+                            <span class="flagged-name">${ing.name}</span>
+                            <span class="flagged-badge ${ing.safety_level}">${ing.safety_level}</span>
+                        </div>
+                        ${ing.why_flagged ? `<div class="flagged-reason">${ing.why_flagged}</div>` : ''}
+                        ${ing.safe_alternatives ? `<div class="flagged-alternative">${ing.safe_alternatives}</div>` : ''}
+                    `;
+                    flaggedList.appendChild(item);
+                });
+            }
+
+            // Safe ingredients (we'll show what's NOT flagged)
+            const safeSection = document.getElementById('safeSection');
+            const safeListEl = document.getElementById('safeList');
+            safeListEl.innerHTML = '';
+
+            // Parse original input to find safe ones
+            const allIngredients = document.getElementById('ingredientInput').value
+                .split(/[,;\n]/)
+                .map(s => s.trim())
+                .filter(s => s.length > 1);
+
+            const flaggedNames = new Set(data.flagged_ingredients.map(i => i.name.toLowerCase()));
+            const safeIngredients = allIngredients.filter(name => {
+                return !flaggedNames.has(name.toLowerCase()) &&
+                       !data.flagged_ingredients.some(f =>
+                           name.toLowerCase().includes(f.name.toLowerCase()) ||
+                           f.name.toLowerCase().includes(name.toLowerCase())
+                       );
+            });
+
+            if (safeIngredients.length === 0) {
+                safeSection.style.display = 'none';
+            } else {
+                safeSection.style.display = 'block';
+                safeIngredients.forEach(name => {
+                    const chip = document.createElement('span');
+                    chip.className = 'safe-chip';
+                    chip.textContent = name;
+                    safeListEl.appendChild(chip);
+                });
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scanAgain() {
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('ingredientInput').value = '';
+            document.getElementById('errorMsg').classList.remove('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function shareResults() {
+            const text = `I just scanned my product on BumpRadar! 🤰📡\nCheck if your products are pregnancy-safe too 👇\nhttps://bumpradar.app`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'BumpRadar - Pregnancy Safety Check',
+                        text: text,
+                        url: 'https://bumpradar.app'
+                    });
+                } catch (e) {
+                    // User cancelled or share failed
+                    fallbackCopy(text);
+                }
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.share-btn');
+                btn.textContent = '✅ Link Copied!';
+                setTimeout(() => {
+                    btn.textContent = '📤 Share Results';
+                }, 2000);
+            });
+        }
+
+        // Allow Enter to scan
+        document.getElementById('ingredientInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                // Don't prevent default — let users add newlines with Shift+Enter
+            }
+        });
+    </script>
+</body>
+</html>

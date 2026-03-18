@@ -1,11 +1,14 @@
 """
-Pregnancy Safety Radar API
+BumpRadar API
 Main FastAPI application entry point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from app.core.config import settings
 from app.core.database import init_db
@@ -60,14 +63,21 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
+# Serve frontend
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend")
+
+
 @app.get("/")
 async def root():
-    """Health check endpoint"""
+    """Serve the frontend"""
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "status": "healthy",
-        "message": "Pregnancy Safety Radar API is running"
+        "message": "BumpRadar API is running"
     }
 
 

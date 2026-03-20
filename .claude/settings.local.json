@@ -2,7 +2,28 @@
   "permissions": {
     "allow": [
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh:*)",
+      "Bash(git pull:*)",
+      "Bash(chmod:*)",
+      "Bash(ipconfig:*)",
+      "Bash(test:*)",
+      "Bash(./start_app.sh:*)",
+      "Bash(python -m pip:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(xargs kill:*)",
+      "Bash(killall:*)",
+      "Bash(start_app.bat)",
+      "Bash(python -m uvicorn:*)",
+      "Bash(python simple_server.py:*)",
+      "Bash(python:*)",
+      "Bash(git push:*)",
+      "Bash(git config:*)",
+      "Bash(git remote set-url:*)"
     ]
   }
 }

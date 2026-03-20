@@ -689,6 +689,145 @@
             80% { transform: translateX(4px); }
         }
 
+        /* ─── Loading Overlay ─── */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 245, 246, 0.97);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 48px 32px;
+            text-align: center;
+            max-width: 340px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(212, 112, 143, 0.2);
+            border: 2px solid var(--accent-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-shimmer {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.8),
+                rgba(212, 112, 143, 0.4),
+                rgba(255, 255, 255, 0.9),
+                transparent
+            );
+            animation: shimmer 1.5s infinite;
+        }
+
+        .loading-shimmer-2 {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                60deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            animation: shimmer 2s infinite reverse;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+        }
+
+        /* Radar scanning animation */
+        .radar-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+        }
+
+        .radar-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: radarPulse 2s ease-out infinite;
+        }
+
+        .radar-circle.delay-1 {
+            animation-delay: 0.6s;
+        }
+
+        .radar-circle.delay-2 {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes radarPulse {
+            0% {
+                width: 40px;
+                height: 40px;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+
+        .loading-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .loading-message {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            position: relative;
+            animation: fadeInOut 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+
         /* ─── Examples ─── */
         .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
@@ -913,6 +1052,21 @@
             </button>
         </div>
 
+        <!-- Loading Messages -->
+        <div class="loading-overlay" id="loadingOverlay" style="display:none">
+            <div class="loading-card">
+                <div class="loading-shimmer"></div>
+                <div class="loading-shimmer-2"></div>
+                <div class="radar-container">
+                    <div class="radar-circle"></div>
+                    <div class="radar-circle delay-1"></div>
+                    <div class="radar-circle delay-2"></div>
+                </div>
+                <div class="loading-icon">🤰</div>
+                <div class="loading-message" id="loadingMessage">Analyzing your product...</div>
+            </div>
+        </div>
+
         <!-- Error -->
         <div class="error-msg" id="errorMsg"></div>
 
@@ -969,9 +1123,29 @@
     </div>
 
     <script>
-        const API_URL = '/api/v1/scan/';
+        // Auto-detect API URL based on current host
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000'
+            : 'http://192.168.2.10:8000';
+        const API_URL = `${API_BASE}/api/v1/scan/`;
         let currentMode = 'photo';
         let selectedPhoto = null;
+        let loadingMessageInterval = null;
+
+        const ENCOURAGING_MESSAGES = [
+            "You're doing great, mama 💗",
+            "Taking care of you and baby ✨",
+            "Your baby's health matters 🤱",
+            "Keep going, you're amazing 💪",
+            "Protecting what matters most 💝",
+            "Every scan makes you a great mom 🌟",
+            "We've got your back, mama 🤗",
+            "Your baby is lucky to have you 👶",
+            "Making safe choices together 💕",
+            "You're an incredible mom 🌸",
+            "Caring for two hearts now 💞",
+            "You've got this, mama 🦋"
+        ];
 
         const EXAMPLES = {
             skincare: 'Water, Glycerin, Retinol, Niacinamide, Hyaluronic Acid, Fragrance, Methylparaben, Dimethicone, Phenoxyethanol',
@@ -996,7 +1170,7 @@
             document.getElementById('ingredientInput').value = EXAMPLES[type];
         }
 
-        // Photo handling
+        // Photo handling with compression
         document.getElementById('photoInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1006,15 +1180,55 @@
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedPhoto = e.target.result;
-                document.getElementById('photoPreviewImg').src = selectedPhoto;
+            // Compress image before uploading
+            compressImage(file, function(compressedDataUrl) {
+                selectedPhoto = compressedDataUrl;
+                document.getElementById('photoPreviewImg').src = compressedDataUrl;
                 document.getElementById('photoPreview').style.display = 'block';
                 document.getElementById('photoUpload').style.display = 'none';
+            });
+        });
+
+        // Image compression function
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Max dimensions for compression (reduce to 1200px max width/height)
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = height * (MAX_WIDTH / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = width * (MAX_HEIGHT / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.7 quality
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(compressedDataUrl);
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
-        });
+        }
 
         // Drag & drop
         const uploadArea = document.getElementById('photoUpload');
@@ -1025,11 +1239,17 @@
             uploadArea.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
-                const input = document.getElementById('photoInput');
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
-                input.dispatchEvent(new Event('change'));
+                if (file.size > 10 * 1024 * 1024) {
+                    showError('Image too large. Please use an image under 10MB.');
+                    return;
+                }
+                // Compress image before uploading
+                compressImage(file, function(compressedDataUrl) {
+                    selectedPhoto = compressedDataUrl;
+                    document.getElementById('photoPreviewImg').src = compressedDataUrl;
+                    document.getElementById('photoPreview').style.display = 'block';
+                    document.getElementById('photoUpload').style.display = 'none';
+                });
             }
         });
 
@@ -1044,6 +1264,30 @@
             const el = document.getElementById('errorMsg');
             el.textContent = msg;
             el.classList.add('visible');
+        }
+
+        function showLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            const messageEl = document.getElementById('loadingMessage');
+            overlay.style.display = 'flex';
+
+            let messageIndex = 0;
+            messageEl.textContent = ENCOURAGING_MESSAGES[0];
+
+            // Rotate through messages every 3 seconds
+            loadingMessageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % ENCOURAGING_MESSAGES.length;
+                messageEl.textContent = ENCOURAGING_MESSAGES[messageIndex];
+            }, 3000);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'none';
+            if (loadingMessageInterval) {
+                clearInterval(loadingMessageInterval);
+                loadingMessageInterval = null;
+            }
         }
 
         // Main scan function
@@ -1081,6 +1325,9 @@
             const origText = btn.textContent;
             btn.textContent = 'Scanning...';
 
+            // Show encouraging loading messages
+            showLoading();
+
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -1109,6 +1356,7 @@
             } catch (err) {
                 showError(`Something went wrong: ${err.message}. Please try again.`);
             } finally {
+                hideLoading();
                 btn.disabled = false;
                 btn.classList.remove('loading');
                 btn.textContent = origText;
@@ -1253,7 +1501,7 @@
         // Scan counter
         async function updateScanCounter() {
             try {
-                const resp = await fetch('/api/v1/scan/usage');
+                const resp = await fetch(`${API_BASE}/api/v1/scan/usage`);
                 const data = await resp.json();
                 const el = document.getElementById('scanCounterText');
                 if (data.scans_remaining > 0) {

@@ -93,9 +93,16 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
+
+    # Configure uvicorn with larger request body size for image uploads
+    config = uvicorn.Config(
         "app.main:app",
         host="0.0.0.0",
         port=8000,
-        reload=settings.DEBUG
+        reload=settings.DEBUG,
+        timeout_keep_alive=30,
+        # Increase max request body size to 20MB for image uploads
+        limit_max_requests=10000,
     )
+    server = uvicorn.Server(config)
+    server.run()

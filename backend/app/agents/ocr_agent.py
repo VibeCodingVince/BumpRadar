@@ -39,13 +39,23 @@ class OCRAgent(BaseAgent):
         """
         self.log_info("Processing image for ingredient extraction")
 
-        if not settings.OPENAI_API_KEY or not openai:
+        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY.strip() == "":
+            self.log_error("OpenAI API key not configured")
             return {
                 "success": False,
                 "ingredient_text": None,
                 "product_name": None,
                 "confidence": 0.0,
-                "error": "OpenAI API key not configured for image processing",
+                "error": "⚠️ Photo scanning requires an OpenAI API key. Add your key to backend/.env file (OPENAI_API_KEY=sk-...) then restart the server.",
+            }
+
+        if not openai:
+            return {
+                "success": False,
+                "ingredient_text": None,
+                "product_name": None,
+                "confidence": 0.0,
+                "error": "OpenAI library not installed. Run: pip install openai",
             }
 
         # Validate image
@@ -105,8 +115,10 @@ class OCRAgent(BaseAgent):
         data_url = f"data:{mime};base64,{image_base64}"
 
         try:
+            self.log_info("Calling OpenAI Vision API...")
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
+                timeout=30.0,  # 30 second timeout
                 messages=[
                     {
                         "role": "user",

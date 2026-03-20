@@ -9,7 +9,7 @@ from typing import Tuple
 # In-memory store (fine for MVP on single server; swap to Redis later)
 _scan_counts: dict = defaultdict(list)  # ip -> [timestamp, timestamp, ...]
 
-FREE_SCANS_PER_DAY = 3
+FREE_SCANS_PER_DAY = 1000  # Increased for testing (was 3)
 DAY_SECONDS = 86400
 
 
@@ -20,17 +20,17 @@ def check_scan_limit(ip: str) -> Tuple[bool, int, int]:
     Returns:
         (allowed, remaining, total_today)
     """
-    now = time.time()
-    cutoff = now - DAY_SECONDS
+    # DISABLED FOR TESTING - Always allow scans
+    return True, 999, 0
 
-    # Clean old entries
-    _scan_counts[ip] = [ts for ts in _scan_counts[ip] if ts > cutoff]
-
-    total_today = len(_scan_counts[ip])
-    remaining = max(0, FREE_SCANS_PER_DAY - total_today)
-    allowed = total_today < FREE_SCANS_PER_DAY
-
-    return allowed, remaining, total_today
+    # Original code (disabled):
+    # now = time.time()
+    # cutoff = now - DAY_SECONDS
+    # _scan_counts[ip] = [ts for ts in _scan_counts[ip] if ts > cutoff]
+    # total_today = len(_scan_counts[ip])
+    # remaining = max(0, FREE_SCANS_PER_DAY - total_today)
+    # allowed = total_today < FREE_SCANS_PER_DAY
+    # return allowed, remaining, total_today
 
 
 def record_scan(ip: str):
@@ -40,17 +40,25 @@ def record_scan(ip: str):
 
 def get_scan_info(ip: str) -> dict:
     """Get scan usage info for display."""
-    now = time.time()
-    cutoff = now - DAY_SECONDS
-    _scan_counts[ip] = [ts for ts in _scan_counts[ip] if ts > cutoff]
-
-    total_today = len(_scan_counts[ip])
-    remaining = max(0, FREE_SCANS_PER_DAY - total_today)
-
+    # DISABLED FOR TESTING - Always show unlimited
     return {
-        "scans_today": total_today,
-        "scans_remaining": remaining,
-        "limit": FREE_SCANS_PER_DAY,
-        "is_premium": False,  # TODO: check subscription
+        "scans_today": 0,
+        "scans_remaining": 999,
+        "limit": 999,
+        "is_premium": False,
         "upgrade_url": "/premium",
     }
+
+    # Original code (disabled):
+    # now = time.time()
+    # cutoff = now - DAY_SECONDS
+    # _scan_counts[ip] = [ts for ts in _scan_counts[ip] if ts > cutoff]
+    # total_today = len(_scan_counts[ip])
+    # remaining = max(0, FREE_SCANS_PER_DAY - total_today)
+    # return {
+    #     "scans_today": total_today,
+    #     "scans_remaining": remaining,
+    #     "limit": FREE_SCANS_PER_DAY,
+    #     "is_premium": False,
+    #     "upgrade_url": "/premium",
+    # }

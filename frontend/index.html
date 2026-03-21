@@ -939,6 +939,116 @@
             box-shadow: 0 8px 24px rgba(212, 112, 143, 0.35);
         }
 
+        .premium-manage {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .premium-active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, var(--accent-light), #fff);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── Email Modal ─── */
+        .email-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(61, 46, 60, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .email-modal.active { display: flex; }
+
+        .email-modal-content {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 36px 28px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .email-modal-title {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .email-modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .email-input:focus { border-color: var(--accent); }
+
+        .email-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #E8A4BE);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font-body);
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+
+        .email-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(212, 112, 143, 0.3);
+        }
+
+        .email-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .email-cancel {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
         /* ─── Footer ─── */
         .footer {
             text-align: center;
@@ -1098,7 +1208,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">
+            <div class="logo" onclick="scanAgain()" style="cursor: pointer;">
                 <img src="logo.png" alt="BumpRadar Logo" class="logo-image">
                 BumpRadar<span class="logo-dot"></span>
             </div>
@@ -1244,12 +1354,23 @@
             <div class="premium-title">Go Premium</div>
             <div class="premium-desc">Unlimited scans, priority support, and early access to new features.</div>
             <div class="premium-price">$4.99/month</div>
-            <button class="premium-btn" onclick="alert('Coming soon! We\'re setting up payments.')">Upgrade Now</button>
+            <button class="premium-btn" onclick="showEmailModal()">Upgrade Now</button>
         </div>
 
         <footer class="footer">
             <span class="footer-text">© 2026 BumpRadar · <a href="#">Privacy</a></span>
         </footer>
+    </div>
+
+    <!-- Email Modal for Checkout -->
+    <div class="email-modal" id="emailModal">
+        <div class="email-modal-content">
+            <div class="email-modal-title">Upgrade to Premium</div>
+            <div class="email-modal-desc">Enter your email to continue to checkout. We'll use this to activate your unlimited scans.</div>
+            <input type="email" class="email-input" id="checkoutEmail" placeholder="your@email.com" autocomplete="email">
+            <button class="email-submit-btn" id="checkoutBtn" onclick="startCheckout()">Continue to Checkout</button>
+            <div class="email-cancel" onclick="closeEmailModal()">Cancel</div>
+        </div>
     </div>
 
     <!-- Milestone Celebration Modal -->
@@ -1272,6 +1393,115 @@
         let selectedPhoto = null;
         let loadingMessageInterval = null;
         let totalScans = parseInt(localStorage.getItem('bumpradar_total_scans') || '0');
+        let isPremiumUser = false;
+
+        // ─── Premium / Payments ───
+        function getUserEmail() {
+            return localStorage.getItem('bumpradar_email') || null;
+        }
+
+        function showEmailModal() {
+            const modal = document.getElementById('emailModal');
+            const input = document.getElementById('checkoutEmail');
+            const saved = getUserEmail();
+            if (saved) input.value = saved;
+            modal.classList.add('active');
+            input.focus();
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('active');
+        }
+
+        async function startCheckout() {
+            const email = document.getElementById('checkoutEmail').value.trim();
+            if (!email || !email.includes('@')) {
+                document.getElementById('checkoutEmail').style.borderColor = 'var(--avoid)';
+                return;
+            }
+
+            const btn = document.getElementById('checkoutBtn');
+            btn.disabled = true;
+            btn.textContent = 'Redirecting...';
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/payments/create-checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json();
+
+                if (data.already_premium) {
+                    localStorage.setItem('bumpradar_email', email);
+                    closeEmailModal();
+                    isPremiumUser = true;
+                    applyPremiumUI();
+                    return;
+                }
+
+                if (data.checkout_url) {
+                    localStorage.setItem('bumpradar_email', email);
+                    window.location.href = data.checkout_url;
+                } else {
+                    throw new Error(data.detail || 'Could not create checkout session');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Continue to Checkout';
+            }
+        }
+
+        async function checkPremiumStatus() {
+            const email = getUserEmail();
+            if (!email) return;
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/payments/status?email=${encodeURIComponent(email)}`);
+                const data = await resp.json();
+                if (data.is_premium) {
+                    isPremiumUser = true;
+                    applyPremiumUI();
+                }
+            } catch (e) { /* silent */ }
+        }
+
+        function applyPremiumUI() {
+            document.getElementById('premiumBanner').style.display = 'none';
+            document.getElementById('scanCounterText').innerHTML = '<span class="premium-active-badge">✦ Premium</span> Unlimited scans';
+        }
+
+        async function openManageSubscription() {
+            const email = getUserEmail();
+            if (!email) return;
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/payments/portal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json();
+                if (data.portal_url) window.location.href = data.portal_url;
+            } catch (e) { alert('Could not open subscription management.'); }
+        }
+
+        // Handle checkout return
+        (function handleCheckoutReturn() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('checkout') === 'success') {
+                const email = params.get('email');
+                if (email) localStorage.setItem('bumpradar_email', email);
+                window.history.replaceState({}, '', '/');
+                isPremiumUser = true;
+                setTimeout(() => {
+                    applyPremiumUI();
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    }
+                }, 300);
+            }
+        })();
 
         const ENCOURAGING_MESSAGES = [
             "You're doing great, mama 💗",
@@ -1496,9 +1726,13 @@
             showLoading();
 
             try {
+                const scanHeaders = { 'Content-Type': 'application/json' };
+                const userEmail = getUserEmail();
+                if (userEmail) scanHeaders['X-User-Email'] = userEmail;
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: scanHeaders,
                     body: JSON.stringify(body)
                 });
 
@@ -1772,11 +2006,21 @@
 
         // Scan counter
         async function updateScanCounter() {
+            if (isPremiumUser) {
+                applyPremiumUI();
+                return;
+            }
             try {
-                const resp = await fetch(`${API_BASE}/api/v1/scan/usage`);
+                let usageUrl = `${API_BASE}/api/v1/scan/usage`;
+                const email = getUserEmail();
+                if (email) usageUrl += `?email=${encodeURIComponent(email)}`;
+                const resp = await fetch(usageUrl);
                 const data = await resp.json();
                 const el = document.getElementById('scanCounterText');
-                if (data.scans_remaining > 0) {
+                if (data.is_premium) {
+                    isPremiumUser = true;
+                    applyPremiumUI();
+                } else if (data.scans_remaining > 0) {
                     el.innerHTML = `<span class="scans-left">${data.scans_remaining}</span> free scan${data.scans_remaining !== 1 ? 's' : ''} remaining today`;
                     document.getElementById('premiumBanner').style.display = 'none';
                 } else {
@@ -1786,7 +2030,8 @@
             } catch (e) { /* silent */ }
         }
 
-        // Load counter on page load
+        // Load on page start
+        checkPremiumStatus();
         updateScanCounter();
     </script>
 </body>

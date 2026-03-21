@@ -6,6 +6,7 @@ from app.models.enums import SafetyLevel, IngredientCategory, TrimesterRisk
 from app.models.ingredient import Ingredient, IngredientAlias
 from app.models.product import Product, product_ingredients
 from app.models.safety_classification import SafetyClassification
+from app.models.subscriber import Subscriber
 
 __all__ = [
     # Enums
@@ -18,4 +19,5 @@ __all__ = [
     "Product",
     "product_ingredients",
     "SafetyClassification",
+    "Subscriber",
 ]

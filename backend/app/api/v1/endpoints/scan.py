@@ -4,11 +4,13 @@ Analyzes products/ingredients for pregnancy safety
 """
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from app.core.database import get_db
 from app.core.rate_limit import check_scan_limit, record_scan, get_scan_info
 from app.schemas.scan import ScanRequest, ScanResponse
 from app.agents.orchestrator import OrchestratorAgent
+from app.models.subscriber import Subscriber
 
 router = APIRouter()
 
@@ -19,6 +21,14 @@ def _get_client_ip(request: Request) -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host
+
+
+def _check_premium(email: Optional[str], db: Session) -> bool:
+    """Check if an email has an active premium subscription."""
+    if not email:
+        return False
+    subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
+    return subscriber is not None and subscriber.status == "active"
 
 
 @router.post("/", response_model=ScanResponse)
@@ -45,9 +55,13 @@ async def scan_product(
             detail="Must provide either barcode, ingredient_text, or image_base64",
         )
 
+    # Check premium status via email header
+    email = raw_request.headers.get("X-User-Email")
+    is_premium = _check_premium(email, db)
+
     # Check rate limit
     ip = _get_client_ip(raw_request)
-    allowed, remaining, total = check_scan_limit(ip)
+    allowed, remaining, total = check_scan_limit(ip, is_premium=is_premium)
 
     if not allowed:
         raise HTTPException(
@@ -66,16 +80,13 @@ async def scan_product(
 
     # Record successful scan
     record_scan(ip)
-    scan_info = get_scan_info(ip)
-
-    # Inject scan counter into response headers (frontend can read these)
-    # We'll add it to the response model instead for simplicity
 
     return result
 
 
 @router.get("/usage")
-async def scan_usage(request: Request):
+async def scan_usage(request: Request, email: Optional[str] = None, db: Session = Depends(get_db)):
     """Get current scan usage for this user."""
     ip = _get_client_ip(request)
-    return get_scan_info(ip)
+    is_premium = _check_premium(email, db)
+    return get_scan_info(ip, is_premium=is_premium)

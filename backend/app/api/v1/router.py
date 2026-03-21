@@ -3,7 +3,7 @@ API v1 Router
 Aggregates all endpoint routers
 """
 from fastapi import APIRouter
-from app.api.v1.endpoints import ingredients, products, scan, admin
+from app.api.v1.endpoints import ingredients, products, scan, admin, payments
 
 api_router = APIRouter()
 
@@ -29,4 +29,10 @@ api_router.include_router(
     admin.router,
     prefix="/admin",
     tags=["admin"]
+)
+
+api_router.include_router(
+    payments.router,
+    prefix="/payments",
+    tags=["payments"]
 )

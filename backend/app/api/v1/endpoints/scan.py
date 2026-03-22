@@ -59,18 +59,29 @@ async def scan_product(
     email = raw_request.headers.get("X-User-Email")
     is_premium = _check_premium(email, db)
 
+    # Determine scan type (photo scans cost more due to Vision API)
+    is_photo = bool(request.image_base64)
+
     # Check rate limit
     ip = _get_client_ip(raw_request)
-    allowed, remaining, total = check_scan_limit(ip, is_premium=is_premium)
+    allowed, remaining, total = check_scan_limit(
+        ip, is_premium=is_premium, email=email, is_photo=is_photo
+    )
 
     if not allowed:
+        if is_premium and is_photo:
+            message = "Daily photo scan limit reached (15/day). Try pasting ingredients as text instead — it's unlimited!"
+        elif is_premium:
+            message = "Daily scan limit reached (30/day). Your limit resets tomorrow!"
+        else:
+            message = "Daily scan limit reached! Upgrade to BumpRadar Premium for 30 scans/day."
         raise HTTPException(
             status_code=429,
             detail={
-                "message": "Daily scan limit reached! Upgrade to BumpRadar Premium for unlimited scans.",
+                "message": message,
                 "scans_today": total,
-                "limit": 3,
-                "upgrade_url": "/premium",
+                "limit": 30 if is_premium else 3,
+                "is_premium": is_premium,
             },
         )
 
@@ -79,7 +90,7 @@ async def scan_product(
     result = orchestrator.execute(request)
 
     # Record successful scan
-    record_scan(ip)
+    record_scan(ip, is_premium=is_premium, email=email, is_photo=is_photo)
 
     return result
 
@@ -89,4 +100,4 @@ async def scan_usage(request: Request, email: Optional[str] = None, db: Session 
     """Get current scan usage for this user."""
     ip = _get_client_ip(request)
     is_premium = _check_premium(email, db)
-    return get_scan_info(ip, is_premium=is_premium)
+    return get_scan_info(ip, is_premium=is_premium, email=email)

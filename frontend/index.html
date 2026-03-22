@@ -1392,7 +1392,7 @@
         <div class="premium-banner" id="premiumBanner">
             <div class="premium-icon">✦</div>
             <div class="premium-title">Go Premium</div>
-            <div class="premium-desc">Unlimited scans, priority support, and early access to new features.</div>
+            <div class="premium-desc">30 scans/day (15 photo), priority support, and early access to new features.</div>
             <div class="premium-price">$4.99/month</div>
             <button class="premium-btn" onclick="showEmailModal()">Upgrade Now</button>
         </div>
@@ -1503,13 +1503,19 @@
                 if (data.is_premium) {
                     isPremiumUser = true;
                     applyPremiumUI();
+                    updateScanCounter();
                 }
             } catch (e) { /* silent */ }
         }
 
-        function applyPremiumUI() {
+        function applyPremiumUI(scansRemaining, photoRemaining) {
             document.getElementById('premiumBanner').style.display = 'none';
-            document.getElementById('scanCounterText').innerHTML = '<span class="premium-active-badge">✦ Premium</span> Unlimited scans';
+            const counterEl = document.getElementById('scanCounterText');
+            if (scansRemaining !== undefined) {
+                counterEl.innerHTML = `<span class="premium-active-badge">✦ Premium</span> ${scansRemaining} scans left today (${photoRemaining !== undefined ? photoRemaining + ' photo' : ''})`;
+            } else {
+                counterEl.innerHTML = '<span class="premium-active-badge">✦ Premium</span> 30 scans/day';
+            }
             const proBtn = document.getElementById('goProBtn');
             proBtn.innerHTML = '✦ Pro';
             proBtn.classList.add('is-premium');
@@ -1783,8 +1789,10 @@
                 if (response.status === 429) {
                     const err = await response.json();
                     const detail = err.detail || {};
-                    showError(detail.message || 'Daily scan limit reached! Upgrade for unlimited scans.');
-                    document.getElementById('premiumBanner').style.display = 'block';
+                    showError(detail.message || 'Daily scan limit reached!');
+                    if (!detail.is_premium) {
+                        document.getElementById('premiumBanner').style.display = 'block';
+                    }
                     updateScanCounter();
                     return;
                 }
@@ -2050,10 +2058,6 @@
 
         // Scan counter
         async function updateScanCounter() {
-            if (isPremiumUser) {
-                applyPremiumUI();
-                return;
-            }
             try {
                 let usageUrl = `${API_BASE}/api/v1/scan/usage`;
                 const email = getUserEmail();
@@ -2063,7 +2067,7 @@
                 const el = document.getElementById('scanCounterText');
                 if (data.is_premium) {
                     isPremiumUser = true;
-                    applyPremiumUI();
+                    applyPremiumUI(data.scans_remaining, data.photo_scans_remaining);
                 } else if (data.scans_remaining > 0) {
                     el.innerHTML = `<span class="scans-left">${data.scans_remaining}</span> free scan${data.scans_remaining !== 1 ? 's' : ''} remaining today`;
                 } else {

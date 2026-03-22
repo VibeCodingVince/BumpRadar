@@ -1,8 +1,10 @@
 """
 OCR Agent
-Extracts ingredient lists from product photos using OpenAI Vision
+Extracts ingredient lists from product photos.
+Uses Tesseract (free, local) for free-tier users and OpenAI Vision for premium.
 """
 import base64
+import io
 import json
 import re
 from typing import Optional
@@ -17,6 +19,12 @@ try:
 except ImportError:
     openai = None
 
+try:
+    from PIL import Image
+    import pytesseract
+except ImportError:
+    pytesseract = None
+
 
 class OCRAgent(BaseAgent):
     """
@@ -28,36 +36,18 @@ class OCRAgent(BaseAgent):
     3. Return structured ingredient text ready for classification
     """
 
-    def execute(self, image_base64: str) -> dict:
+    def execute(self, image_base64: str, use_local_ocr: bool = False) -> dict:
         """
         Extract ingredients from a product photo.
 
         Args:
             image_base64: Base64-encoded image (JPEG/PNG)
+            use_local_ocr: If True, use free local Tesseract OCR instead of OpenAI Vision
 
         Returns:
             Dict with keys: success, ingredient_text, product_name, confidence, error
         """
         self.log_info("Processing image for ingredient extraction")
-
-        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY.strip() == "":
-            self.log_error("OpenAI API key not configured")
-            return {
-                "success": False,
-                "ingredient_text": None,
-                "product_name": None,
-                "confidence": 0.0,
-                "error": "⚠️ Photo scanning requires an OpenAI API key. Add your key to backend/.env file (OPENAI_API_KEY=sk-...) then restart the server.",
-            }
-
-        if not openai:
-            return {
-                "success": False,
-                "ingredient_text": None,
-                "product_name": None,
-                "confidence": 0.0,
-                "error": "OpenAI library not installed. Run: pip install openai",
-            }
 
         # Validate image
         if not self._validate_image(image_base64):
@@ -67,6 +57,29 @@ class OCRAgent(BaseAgent):
                 "product_name": None,
                 "confidence": 0.0,
                 "error": "Invalid image data. Please provide a clear photo of the ingredient list.",
+            }
+
+        if use_local_ocr:
+            return self._extract_with_tesseract(image_base64)
+
+        # Premium path: OpenAI Vision
+        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY.strip() == "":
+            self.log_error("OpenAI API key not configured")
+            return {
+                "success": False,
+                "ingredient_text": None,
+                "product_name": None,
+                "confidence": 0.0,
+                "error": "Photo scanning is temporarily unavailable. Please paste your ingredients as text instead.",
+            }
+
+        if not openai:
+            return {
+                "success": False,
+                "ingredient_text": None,
+                "product_name": None,
+                "confidence": 0.0,
+                "error": "OpenAI library not installed. Run: pip install openai",
             }
 
         # Global cost circuit breaker
@@ -103,6 +116,94 @@ class OCRAgent(BaseAgent):
             return True
         except Exception:
             return False
+
+    def _extract_with_tesseract(self, image_base64: str) -> dict:
+        """Use free local Tesseract OCR to extract text from image."""
+        if not pytesseract:
+            return {
+                "success": False,
+                "ingredient_text": None,
+                "product_name": None,
+                "confidence": 0.0,
+                "error": "Photo scanning is temporarily unavailable. Please paste your ingredients as text instead.",
+            }
+
+        try:
+            self.log_info("Using local Tesseract OCR...")
+
+            # Decode base64 to image
+            raw_b64 = image_base64
+            if "," in raw_b64:
+                raw_b64 = raw_b64.split(",", 1)[1]
+            image_bytes = base64.b64decode(raw_b64)
+            image = Image.open(io.BytesIO(image_bytes))
+
+            # Convert to grayscale for better OCR accuracy
+            image = image.convert("L")
+
+            # Run Tesseract
+            raw_text = pytesseract.image_to_string(image)
+
+            if not raw_text or len(raw_text.strip()) < 5:
+                return {
+                    "success": False,
+                    "ingredient_text": None,
+                    "product_name": None,
+                    "confidence": 0.0,
+                    "error": "Could not read text from the image. Please try a clearer, well-lit photo of the ingredient list.",
+                }
+
+            # Try to extract ingredient section from the raw text
+            ingredient_text = self._parse_ingredients_from_text(raw_text)
+
+            return {
+                "success": True,
+                "ingredient_text": ingredient_text,
+                "product_name": None,
+                "confidence": 0.6,
+                "error": None,
+            }
+
+        except Exception as e:
+            self.log_error(f"Tesseract OCR failed: {e}")
+            return {
+                "success": False,
+                "ingredient_text": None,
+                "product_name": None,
+                "confidence": 0.0,
+                "error": "Failed to process the image. Please try a clearer photo.",
+            }
+
+    def _parse_ingredients_from_text(self, raw_text: str) -> str:
+        """Extract the ingredient list from raw OCR text."""
+        text = raw_text.strip()
+
+        # Look for common ingredient list markers
+        patterns = [
+            r'(?i)(?:active\s+)?ingredients?\s*[:\-]\s*(.*)',
+            r'(?i)contains?\s*[:\-]\s*(.*)',
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, text, re.DOTALL)
+            if match:
+                ingredient_section = match.group(1).strip()
+                # Clean up: replace newlines with commas, collapse whitespace
+                ingredient_section = re.sub(r'\s*\n\s*', ', ', ingredient_section)
+                ingredient_section = re.sub(r'\s{2,}', ' ', ingredient_section)
+                # Stop at common section boundaries
+                for stop in ['directions', 'warnings', 'storage', 'manufactured', 'distributed', 'net wt']:
+                    stop_match = re.search(rf'(?i)\b{stop}\b', ingredient_section)
+                    if stop_match:
+                        ingredient_section = ingredient_section[:stop_match.start()].rstrip(', ')
+                        break
+                if len(ingredient_section) > 10:
+                    return ingredient_section
+
+        # No marker found — return all text cleaned up as best effort
+        text = re.sub(r'\s*\n\s*', ', ', text)
+        text = re.sub(r'\s{2,}', ' ', text)
+        return text.strip()
 
     def _extract_with_vision(self, image_base64: str) -> dict:
         """Use OpenAI Vision to extract ingredients from image."""

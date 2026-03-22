@@ -21,9 +21,13 @@ class OrchestratorAgent(BaseAgent):
     3. If image provided -> OCRAgent -> classifier
     """
 
-    def execute(self, request: ScanRequest) -> ScanResponse:
+    def execute(self, request: ScanRequest, use_local_ocr: bool = False) -> ScanResponse:
         """
         Execute scan request routing
+
+        Args:
+            request: The scan request
+            use_local_ocr: If True, use free local Tesseract OCR for image scanning
         """
         self.log_info(f"Orchestrating scan request: barcode={request.barcode}, "
                       f"has_text={bool(request.ingredient_text)}, "
@@ -39,7 +43,7 @@ class OrchestratorAgent(BaseAgent):
 
         # Route 3: Image OCR via OCRAgent
         if request.image_base64:
-            return self._handle_image_scan(request.image_base64)
+            return self._handle_image_scan(request.image_base64, use_local_ocr=use_local_ocr)
 
         raise ValueError("No valid input provided")
 
@@ -72,10 +76,10 @@ class OrchestratorAgent(BaseAgent):
         classifier = SafetyClassifierAgent(self.db)
         return classifier.execute(ingredient_text)
 
-    def _handle_image_scan(self, image_base64: str) -> ScanResponse:
+    def _handle_image_scan(self, image_base64: str, use_local_ocr: bool = False) -> ScanResponse:
         """Handle image-based scanning via OCR Agent."""
         ocr = OCRAgent(self.db)
-        ocr_result = ocr.execute(image_base64)
+        ocr_result = ocr.execute(image_base64, use_local_ocr=use_local_ocr)
 
         if not ocr_result["success"]:
             return ScanResponse(

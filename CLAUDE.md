@@ -19,14 +19,20 @@ When the user says "end session":
   - `app/core/` - Core functionality including rate_limit.py
   - `app/models/subscriber.py` - Premium subscriber tracking model
 - `frontend/` - Frontend application with server.py
-- `skills/` - Custom Claude skills (frontend-design)
+- `skills/` - Custom Claude skills (frontend-design, app-analyst)
 - `.claude-plugin/` - Claude plugin configuration
 
-## Recent Updates (as of 2026-03-21)
+## Recent Updates (as of 2026-03-22)
+- **Premium Pricing & Scan Caps**: $9.99/month with usage caps to guarantee profit
+  - Free: 3 scans/day | Premium: 20 scans/day (5 photo max)
+  - Photo scans cost ~$0.03 each (GPT-4o-mini Vision) — capped to ensure $4.90+ profit/subscriber
+  - Premium users tracked by email (not IP) for cross-device limits
+  - Rate limiter in `backend/app/core/rate_limit.py` tracks total + photo scans separately
+  - IMPORTANT: Stripe Price in dashboard must be updated to $9.99 to match frontend
+- **App Analyst Skill**: `skills/app-analyst/` — full-stack audit skill with checklists and report template
 - **Stripe Payments MVP**: Email-only identification + Stripe Checkout hosted page
   - Endpoints: create-checkout, webhook, status, portal (`backend/app/api/v1/endpoints/payments.py`)
   - Subscriber model tracks premium users by email (`backend/app/models/subscriber.py`)
-  - Rate limiting re-enabled: 3 scans/day free, unlimited premium
   - Scan endpoint reads `X-User-Email` header for premium bypass
   - Frontend: email modal, checkout redirect, "Go Pro" header button, premium banner
   - Requires Stripe keys in `backend/.env`: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`, `FRONTEND_URL`

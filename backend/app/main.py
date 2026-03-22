@@ -32,6 +32,8 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Pregnancy Safety Radar API...")
     init_db()
     logger.info("✅ Database initialized")
+    if settings.SECRET_KEY == "dev-secret-key-change-in-production":
+        logger.warning("⚠️  Using default SECRET_KEY — set SECRET_KEY env var in production!")
     logger.info(f"✅ {settings.APP_NAME} v{settings.APP_VERSION} ready!")
 
     yield
@@ -50,13 +52,29 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware - allow all origins for now (restrict in production)
+# CORS middleware
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
+# Allow the configured frontend URL
+if settings.FRONTEND_URL and settings.FRONTEND_URL not in ALLOWED_ORIGINS:
+    ALLOWED_ORIGINS.append(settings.FRONTEND_URL)
+# Allow additional origins from CORS_ORIGINS env var
+if settings.CORS_ORIGINS:
+    for origin in settings.CORS_ORIGINS.split(","):
+        origin = origin.strip()
+        if origin and origin not in ALLOWED_ORIGINS:
+            ALLOWED_ORIGINS.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Restrict in production
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Include API routes

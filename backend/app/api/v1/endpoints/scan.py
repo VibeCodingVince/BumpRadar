@@ -8,9 +8,11 @@ from typing import Optional
 
 from app.core.database import get_db
 from app.core.rate_limit import check_scan_limit, record_scan, get_scan_info
+from app.core.auth import get_optional_user
 from app.schemas.scan import ScanRequest, ScanResponse
 from app.agents.orchestrator import OrchestratorAgent
 from app.models.subscriber import Subscriber
+from app.models.user import User
 
 router = APIRouter()
 
@@ -36,6 +38,7 @@ async def scan_product(
     request: ScanRequest,
     raw_request: Request,
     db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
 ):
     """
     Scan a product for pregnancy safety.
@@ -55,8 +58,8 @@ async def scan_product(
             detail="Must provide either barcode, ingredient_text, or image_base64",
         )
 
-    # Check premium status via email header
-    email = raw_request.headers.get("X-User-Email")
+    # Check premium status — JWT auth only (header spoofing removed)
+    email = user.email if user else None
     is_premium = _check_premium(email, db)
 
     # Determine scan type (photo scans cost more due to Vision API)
@@ -96,8 +99,14 @@ async def scan_product(
 
 
 @router.get("/usage")
-async def scan_usage(request: Request, email: Optional[str] = None, db: Session = Depends(get_db)):
+async def scan_usage(
+    request: Request,
+    email: Optional[str] = None,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+):
     """Get current scan usage for this user."""
     ip = _get_client_ip(request)
-    is_premium = _check_premium(email, db)
-    return get_scan_info(ip, is_premium=is_premium, email=email)
+    resolved_email = user.email if user else email
+    is_premium = _check_premium(resolved_email, db)
+    return get_scan_info(ip, is_premium=is_premium, email=resolved_email)

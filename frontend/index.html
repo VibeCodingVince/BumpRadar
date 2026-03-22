@@ -999,8 +999,8 @@
             letter-spacing: 0.5px;
         }
 
-        /* ─── Email Modal ─── */
-        .email-modal {
+        /* ─── Auth Modal ─── */
+        .auth-modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
@@ -1012,9 +1012,9 @@
             align-items: center;
         }
 
-        .email-modal.active { display: flex; }
+        .auth-modal.active { display: flex; }
 
-        .email-modal-content {
+        .auth-modal-content {
             background: var(--card);
             border-radius: var(--radius);
             padding: 36px 28px;
@@ -1024,21 +1024,48 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
 
-        .email-modal-title {
+        .auth-modal-title {
             font-family: var(--font-display);
             font-size: 22px;
             font-weight: 900;
             margin-bottom: 8px;
         }
 
-        .email-modal-desc {
+        .auth-modal-desc {
             font-size: 13px;
             color: var(--text-muted);
             margin-bottom: 20px;
             line-height: 1.5;
         }
 
-        .email-input {
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .auth-input {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid var(--border);
@@ -1047,12 +1074,12 @@
             font-size: 15px;
             outline: none;
             transition: border-color 0.2s;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
-        .email-input:focus { border-color: var(--accent); }
+        .auth-input:focus { border-color: var(--accent); }
 
-        .email-submit-btn {
+        .auth-submit-btn {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, var(--accent), #E8A4BE);
@@ -1065,26 +1092,112 @@
             font-family: var(--font-body);
             letter-spacing: 0.5px;
             transition: all 0.3s;
+            margin-top: 4px;
         }
 
-        .email-submit-btn:hover {
+        .auth-submit-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(212, 112, 143, 0.3);
         }
 
-        .email-submit-btn:disabled {
+        .auth-submit-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .email-cancel {
+        .auth-error {
+            font-size: 12px;
+            color: var(--avoid);
+            margin-bottom: 8px;
+            min-height: 18px;
+        }
+
+        .auth-cancel {
             display: inline-block;
             margin-top: 12px;
             font-size: 12px;
             color: var(--text-muted);
             cursor: pointer;
         }
+
+        /* ─── Account Dropdown ─── */
+        .account-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .account-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            background: transparent;
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-btn:hover { background: var(--accent-light); }
+
+        .account-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            min-width: 180px;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .account-menu.open { display: block; }
+
+        .account-menu-item {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            font-family: var(--font-body);
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.15s;
+        }
+
+        .account-menu-item:hover { background: var(--accent-light); }
+        .account-menu-item.danger { color: var(--avoid); }
+        .account-menu-item.danger:hover { background: var(--avoid-bg); }
+
+        /* ─── Change Password Modal ─── */
+        .change-pw-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(61, 46, 60, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .change-pw-modal.active { display: flex; }
 
         /* ─── Footer ─── */
         .footer {
@@ -1250,7 +1363,9 @@
                     <img src="logo.png" alt="BumpRadar Logo" class="logo-image">
                     BumpRadar<span class="logo-dot"></span>
                 </div>
-                <button class="go-pro-btn" id="goProBtn" onclick="showEmailModal()">✦ Go Pro</button>
+                <div id="headerAuth">
+                    <button class="go-pro-btn" id="goProBtn" onclick="showAuthModal('register')">✦ Go Pro</button>
+                </div>
             </div>
             <div class="deco-line"></div>
             <p class="tagline">Is it safe for your bump? Find out instantly.</p>
@@ -1394,7 +1509,7 @@
             <div class="premium-title">Go Premium</div>
             <div class="premium-desc">20 scans/day (5 photo), priority support, and early access to new features.</div>
             <div class="premium-price">$9.99/month</div>
-            <button class="premium-btn" onclick="showEmailModal()">Upgrade Now</button>
+            <button class="premium-btn" onclick="showAuthModal('register')">Upgrade Now</button>
         </div>
 
         <footer class="footer">
@@ -1402,14 +1517,32 @@
         </footer>
     </div>
 
-    <!-- Email Modal for Checkout -->
-    <div class="email-modal" id="emailModal">
-        <div class="email-modal-content">
-            <div class="email-modal-title">Upgrade to Premium</div>
-            <div class="email-modal-desc">Enter your email to continue to checkout. We'll use this to activate your unlimited scans.</div>
-            <input type="email" class="email-input" id="checkoutEmail" placeholder="your@email.com" autocomplete="email">
-            <button class="email-submit-btn" id="checkoutBtn" onclick="startCheckout()">Continue to Checkout</button>
-            <div class="email-cancel" onclick="closeEmailModal()">Cancel</div>
+    <!-- Auth Modal (Login / Register) -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-title" id="authTitle">Create Account</div>
+            <div class="auth-modal-desc" id="authDesc">Sign up to upgrade to premium and track your scans across devices.</div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabRegister" onclick="switchAuthTab('register')">Sign Up</button>
+                <button class="auth-tab" id="tabLogin" onclick="switchAuthTab('login')">Log In</button>
+            </div>
+            <div class="auth-error" id="authError"></div>
+            <input type="email" class="auth-input" id="authEmail" placeholder="your@email.com" autocomplete="email">
+            <input type="password" class="auth-input" id="authPassword" placeholder="Password (min 8 characters)" autocomplete="new-password">
+            <button class="auth-submit-btn" id="authSubmitBtn" onclick="submitAuth()">Create Account</button>
+            <div class="auth-cancel" onclick="closeAuthModal()">Cancel</div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="change-pw-modal" id="changePwModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-title">Change Password</div>
+            <div class="auth-error" id="changePwError"></div>
+            <input type="password" class="auth-input" id="currentPw" placeholder="Current password" autocomplete="current-password">
+            <input type="password" class="auth-input" id="newPw" placeholder="New password (min 8 characters)" autocomplete="new-password">
+            <button class="auth-submit-btn" onclick="submitChangePassword()">Update Password</button>
+            <div class="auth-cancel" onclick="closeChangePwModal()">Cancel</div>
         </div>
     </div>
 
@@ -1425,9 +1558,9 @@
 
     <script>
         // Auto-detect API URL based on current host
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:8000'
-            : 'http://192.168.2.10:8000';
+            : `http://${window.location.hostname}:8000`;
         const API_URL = `${API_BASE}/api/v1/scan/`;
         let currentMode = 'photo';
         let selectedPhoto = null;
@@ -1435,70 +1568,259 @@
         let totalScans = parseInt(localStorage.getItem('bumpradar_total_scans') || '0');
         let isPremiumUser = false;
 
-        // ─── Premium / Payments ───
+        // ─── Auth & Payments ───
+        let currentAuthMode = 'register'; // 'register' or 'login'
+        let currentUserEmail = null;
+
+        function getAuthToken() {
+            return localStorage.getItem('bumpradar_token') || null;
+        }
+
+        function getAuthHeaders() {
+            const token = getAuthToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            return headers;
+        }
+
         function getUserEmail() {
-            return localStorage.getItem('bumpradar_email') || null;
+            return currentUserEmail || localStorage.getItem('bumpradar_email') || null;
         }
 
-        function showEmailModal() {
-            const modal = document.getElementById('emailModal');
-            const input = document.getElementById('checkoutEmail');
-            const saved = getUserEmail();
-            if (saved) input.value = saved;
-            modal.classList.add('active');
-            input.focus();
+        // ─── Auth Modal ───
+        function showAuthModal(mode, afterAuth) {
+            currentAuthMode = mode || 'register';
+            window._afterAuth = afterAuth || null;
+            switchAuthTab(currentAuthMode);
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authEmail').focus();
         }
 
-        function closeEmailModal() {
-            document.getElementById('emailModal').classList.remove('active');
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            window._afterAuth = null;
         }
 
-        async function startCheckout() {
-            const email = document.getElementById('checkoutEmail').value.trim();
+        function switchAuthTab(mode) {
+            currentAuthMode = mode;
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('authTitle').textContent = mode === 'register' ? 'Create Account' : 'Welcome Back';
+            document.getElementById('authDesc').textContent = mode === 'register'
+                ? 'Sign up to upgrade to premium and track your scans across devices.'
+                : 'Log in to your BumpRadar account.';
+            document.getElementById('authSubmitBtn').textContent = mode === 'register' ? 'Create Account' : 'Log In';
+            document.getElementById('authPassword').placeholder = mode === 'register' ? 'Password (min 8 characters)' : 'Password';
+            document.getElementById('authPassword').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+            document.getElementById('authError').textContent = '';
+        }
+
+        async function submitAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = '';
+
             if (!email || !email.includes('@')) {
-                document.getElementById('checkoutEmail').style.borderColor = 'var(--avoid)';
+                errorEl.textContent = 'Please enter a valid email.';
+                return;
+            }
+            if (currentAuthMode === 'register' && password.length < 8) {
+                errorEl.textContent = 'Password must be at least 8 characters.';
+                return;
+            }
+            if (!password) {
+                errorEl.textContent = 'Please enter your password.';
                 return;
             }
 
-            const btn = document.getElementById('checkoutBtn');
+            const btn = document.getElementById('authSubmitBtn');
             btn.disabled = true;
-            btn.textContent = 'Redirecting...';
+            const origText = btn.textContent;
+            btn.textContent = 'Please wait...';
+
+            const endpoint = currentAuthMode === 'register' ? '/auth/register' : '/auth/login';
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    errorEl.textContent = data.detail || 'Something went wrong.';
+                    return;
+                }
+
+                // Success — store token and email
+                localStorage.setItem('bumpradar_token', data.access_token);
+                localStorage.setItem('bumpradar_email', email);
+                currentUserEmail = email;
+                isPremiumUser = data.is_premium;
+
+                closeAuthModal();
+                applyLoggedInUI(email, data.is_premium);
+
+                if (data.is_premium) {
+                    applyPremiumUI();
+                    updateScanCounter();
+                }
+
+                // If there's a post-auth action (like checkout), run it
+                if (window._afterAuth === 'checkout') {
+                    window._afterAuth = null;
+                    startCheckout();
+                }
+            } catch (err) {
+                errorEl.textContent = 'Network error. Please try again.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = origText;
+            }
+        }
+
+        // ─── Logged-in UI ───
+        function applyLoggedInUI(email, isPremium) {
+            const headerAuth = document.getElementById('headerAuth');
+            const shortEmail = email.length > 18 ? email.substring(0, 15) + '...' : email;
+
+            if (isPremium) {
+                headerAuth.innerHTML = `
+                    <div class="account-dropdown" id="accountDropdown">
+                        <button class="account-btn" onclick="toggleAccountMenu()">✦ ${shortEmail}</button>
+                        <div class="account-menu" id="accountMenu">
+                            <button class="account-menu-item" onclick="openManageSubscription()">Manage Subscription</button>
+                            <button class="account-menu-item" onclick="showChangePwModal()">Change Password</button>
+                            <button class="account-menu-item danger" onclick="logout()">Log Out</button>
+                        </div>
+                    </div>`;
+            } else {
+                headerAuth.innerHTML = `
+                    <div class="account-dropdown" id="accountDropdown">
+                        <button class="account-btn" onclick="toggleAccountMenu()">${shortEmail}</button>
+                        <div class="account-menu" id="accountMenu">
+                            <button class="account-menu-item" onclick="startCheckout()">Upgrade to Premium</button>
+                            <button class="account-menu-item" onclick="showChangePwModal()">Change Password</button>
+                            <button class="account-menu-item danger" onclick="logout()">Log Out</button>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        function toggleAccountMenu() {
+            const menu = document.getElementById('accountMenu');
+            menu.classList.toggle('open');
+            // Close on outside click
+            if (menu.classList.contains('open')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeAccountMenuOutside, { once: true });
+                }, 0);
+            }
+        }
+
+        function closeAccountMenuOutside(e) {
+            const dropdown = document.getElementById('accountDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                document.getElementById('accountMenu').classList.remove('open');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('bumpradar_token');
+            localStorage.removeItem('bumpradar_email');
+            currentUserEmail = null;
+            isPremiumUser = false;
+            document.getElementById('headerAuth').innerHTML =
+                '<button class="go-pro-btn" id="goProBtn" onclick="showAuthModal(\'register\')">✦ Go Pro</button>';
+            document.getElementById('premiumBanner').style.display = '';
+            updateScanCounter();
+        }
+
+        // ─── Change Password ───
+        function showChangePwModal() {
+            document.getElementById('accountMenu').classList.remove('open');
+            document.getElementById('changePwError').textContent = '';
+            document.getElementById('currentPw').value = '';
+            document.getElementById('newPw').value = '';
+            document.getElementById('changePwModal').classList.add('active');
+        }
+
+        function closeChangePwModal() {
+            document.getElementById('changePwModal').classList.remove('active');
+        }
+
+        async function submitChangePassword() {
+            const current = document.getElementById('currentPw').value;
+            const newPw = document.getElementById('newPw').value;
+            const errorEl = document.getElementById('changePwError');
+            errorEl.textContent = '';
+
+            if (!current) { errorEl.textContent = 'Enter your current password.'; return; }
+            if (newPw.length < 8) { errorEl.textContent = 'New password must be at least 8 characters.'; return; }
+
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/auth/change-password`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ current_password: current, new_password: newPw })
+                });
+                const data = await resp.json();
+                if (!resp.ok) {
+                    errorEl.textContent = data.detail || 'Failed to change password.';
+                    return;
+                }
+                closeChangePwModal();
+            } catch (e) {
+                errorEl.textContent = 'Network error.';
+            }
+        }
+
+        // ─── Checkout (for logged-in users) ───
+        async function startCheckout() {
+            const token = getAuthToken();
+            if (!token) {
+                showAuthModal('register', 'checkout');
+                return;
+            }
 
             try {
                 const resp = await fetch(`${API_BASE}/api/v1/payments/create-checkout`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email: getUserEmail() })
                 });
                 const data = await resp.json();
 
                 if (data.already_premium) {
-                    localStorage.setItem('bumpradar_email', email);
-                    closeEmailModal();
                     isPremiumUser = true;
                     applyPremiumUI();
+                    applyLoggedInUI(getUserEmail(), true);
                     return;
                 }
 
                 if (data.checkout_url) {
-                    localStorage.setItem('bumpradar_email', email);
                     window.location.href = data.checkout_url;
                 } else {
                     throw new Error(data.detail || 'Could not create checkout session');
                 }
             } catch (err) {
                 alert('Error: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Continue to Checkout';
             }
         }
 
+        // ─── Premium Status ───
         async function checkPremiumStatus() {
-            const email = getUserEmail();
-            if (!email) return;
+            const token = getAuthToken();
+            if (!token) return;
             try {
-                const resp = await fetch(`${API_BASE}/api/v1/payments/status?email=${encodeURIComponent(email)}`);
+                const resp = await fetch(`${API_BASE}/api/v1/payments/status`, {
+                    headers: getAuthHeaders()
+                });
                 const data = await resp.json();
                 if (data.is_premium) {
                     isPremiumUser = true;
@@ -1514,22 +1836,17 @@
             if (scansRemaining !== undefined) {
                 counterEl.innerHTML = `<span class="premium-active-badge">✦ Premium</span> ${scansRemaining} scans left today (${photoRemaining !== undefined ? photoRemaining + ' photo' : ''})`;
             } else {
-                counterEl.innerHTML = '<span class="premium-active-badge">✦ Premium</span> 30 scans/day';
+                counterEl.innerHTML = '<span class="premium-active-badge">✦ Premium</span> 20 scans/day';
             }
-            const proBtn = document.getElementById('goProBtn');
-            proBtn.innerHTML = '✦ Pro';
-            proBtn.classList.add('is-premium');
-            proBtn.onclick = openManageSubscription;
         }
 
         async function openManageSubscription() {
-            const email = getUserEmail();
-            if (!email) return;
+            document.getElementById('accountMenu').classList.remove('open');
             try {
                 const resp = await fetch(`${API_BASE}/api/v1/payments/portal`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ email: getUserEmail() })
                 });
                 const data = await resp.json();
                 if (data.portal_url) window.location.href = data.portal_url;
@@ -1540,18 +1857,40 @@
         (function handleCheckoutReturn() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('checkout') === 'success') {
-                const email = params.get('email');
-                if (email) localStorage.setItem('bumpradar_email', email);
                 window.history.replaceState({}, '', '/');
                 isPremiumUser = true;
                 setTimeout(() => {
                     applyPremiumUI();
+                    const email = getUserEmail();
+                    if (email) applyLoggedInUI(email, true);
                     if (typeof confetti === 'function') {
                         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                     }
                 }, 300);
             }
         })();
+
+        // Validate token on page load and restore logged-in state
+        async function initAuth() {
+            const token = getAuthToken();
+            if (!token) return;
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/auth/me`, {
+                    headers: getAuthHeaders()
+                });
+                if (!resp.ok) {
+                    // Token expired or invalid
+                    localStorage.removeItem('bumpradar_token');
+                    localStorage.removeItem('bumpradar_email');
+                    return;
+                }
+                const data = await resp.json();
+                currentUserEmail = data.email;
+                isPremiumUser = data.is_premium;
+                applyLoggedInUI(data.email, data.is_premium);
+                if (data.is_premium) applyPremiumUI();
+            } catch (e) { /* silent */ }
+        }
 
         const ENCOURAGING_MESSAGES = [
             "You're doing great, mama 💗",
@@ -1776,13 +2115,9 @@
             showLoading();
 
             try {
-                const scanHeaders = { 'Content-Type': 'application/json' };
-                const userEmail = getUserEmail();
-                if (userEmail) scanHeaders['X-User-Email'] = userEmail;
-
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: scanHeaders,
+                    headers: getAuthHeaders(),
                     body: JSON.stringify(body)
                 });
 
@@ -1977,13 +2312,15 @@
                 data.flagged_ingredients.forEach(ing => {
                     const item = document.createElement('div');
                     item.className = `flagged-item ${ing.safety_level}`;
+                    const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+                    const safeLevel = esc(ing.safety_level || '');
                     item.innerHTML = `
                         <div class="flagged-item-header">
-                            <span class="flagged-name">${ing.name}</span>
-                            <span class="flagged-badge ${ing.safety_level}">${ing.safety_level}</span>
+                            <span class="flagged-name">${esc(ing.name || '')}</span>
+                            <span class="flagged-badge ${safeLevel}">${safeLevel}</span>
                         </div>
-                        ${ing.why_flagged ? `<div class="flagged-reason">${ing.why_flagged}</div>` : ''}
-                        ${ing.safe_alternatives ? `<div class="flagged-alternative">${ing.safe_alternatives}</div>` : ''}
+                        ${ing.why_flagged ? `<div class="flagged-reason">${esc(ing.why_flagged)}</div>` : ''}
+                        ${ing.safe_alternatives ? `<div class="flagged-alternative">${esc(ing.safe_alternatives)}</div>` : ''}
                     `;
                     flaggedList.appendChild(item);
                 });
@@ -2060,9 +2397,12 @@
         async function updateScanCounter() {
             try {
                 let usageUrl = `${API_BASE}/api/v1/scan/usage`;
-                const email = getUserEmail();
-                if (email) usageUrl += `?email=${encodeURIComponent(email)}`;
-                const resp = await fetch(usageUrl);
+                const token = getAuthToken();
+                if (!token) {
+                    const email = getUserEmail();
+                    if (email) usageUrl += `?email=${encodeURIComponent(email)}`;
+                }
+                const resp = await fetch(usageUrl, { headers: token ? getAuthHeaders() : {} });
                 const data = await resp.json();
                 const el = document.getElementById('scanCounterText');
                 if (data.is_premium) {
@@ -2078,6 +2418,7 @@
         }
 
         // Load on page start
+        initAuth();
         checkPremiumStatus();
         updateScanCounter();
     </script>

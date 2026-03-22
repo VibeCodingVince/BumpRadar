@@ -1,14 +1,18 @@
 """
 Payments endpoint - Stripe Checkout integration
 """
+from typing import Optional
+
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.auth import get_optional_user, get_current_user
 from app.models.subscriber import Subscriber
+from app.models.user import User
 
 router = APIRouter()
 
@@ -28,23 +32,30 @@ def _configure_stripe():
 
 
 @router.post("/create-checkout")
-async def create_checkout(req: CheckoutRequest, db: Session = Depends(get_db)):
+async def create_checkout(
+    req: CheckoutRequest,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+):
     """Create a Stripe Checkout session for premium subscription."""
     _configure_stripe()
 
     if not settings.STRIPE_PRICE_ID:
         raise HTTPException(status_code=503, detail="Stripe price not configured")
 
+    # Prefer authenticated email over body email
+    email = user.email if user else req.email
+
     # Check if already premium
-    subscriber = db.query(Subscriber).filter(Subscriber.email == req.email).first()
+    subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
     if subscriber and subscriber.status == "active":
         return {"already_premium": True, "message": "You're already a premium subscriber!"}
 
     session = stripe.checkout.Session.create(
         mode="subscription",
         line_items=[{"price": settings.STRIPE_PRICE_ID, "quantity": 1}],
-        customer_email=req.email,
-        success_url=f"{settings.FRONTEND_URL}?checkout=success&email={req.email}",
+        customer_email=email,
+        success_url=f"{settings.FRONTEND_URL}?checkout=success",
         cancel_url=f"{settings.FRONTEND_URL}?checkout=cancel",
     )
 
@@ -57,16 +68,15 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
-    if settings.STRIPE_WEBHOOK_SECRET:
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-            )
-        except (ValueError, stripe.error.SignatureVerificationError):
-            raise HTTPException(status_code=400, detail="Invalid webhook signature")
-    else:
-        import json
-        event = json.loads(payload)
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        raise HTTPException(status_code=503, detail="Webhook secret not configured")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        raise HTTPException(status_code=400, detail="Invalid webhook signature")
 
     event_type = event.get("type") if isinstance(event, dict) else event["type"]
     data = event.get("data", {}).get("object", {}) if isinstance(event, dict) else event["data"]["object"]
@@ -115,19 +125,34 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/status")
-async def subscription_status(email: str, db: Session = Depends(get_db)):
+async def subscription_status(
+    email: Optional[str] = None,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+):
     """Check if an email has an active premium subscription."""
-    subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
+    resolved_email = user.email if user else email
+    if not resolved_email:
+        return {"is_premium": False, "email": None}
+    subscriber = db.query(Subscriber).filter(Subscriber.email == resolved_email).first()
     is_premium = subscriber is not None and subscriber.status == "active"
-    return {"is_premium": is_premium, "email": email}
+    return {"is_premium": is_premium, "email": resolved_email}
 
 
 @router.post("/portal")
-async def customer_portal(req: PortalRequest, db: Session = Depends(get_db)):
+async def customer_portal(
+    req: Optional[PortalRequest] = None,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_optional_user),
+):
     """Create a Stripe Customer Portal session for managing subscription."""
     _configure_stripe()
 
-    subscriber = db.query(Subscriber).filter(Subscriber.email == req.email).first()
+    email = user.email if user else (req.email if req else None)
+    if not email:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
     if not subscriber or not subscriber.stripe_customer_id:
         raise HTTPException(status_code=404, detail="No subscription found for this email")
 

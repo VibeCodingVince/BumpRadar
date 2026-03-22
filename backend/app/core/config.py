@@ -26,10 +26,13 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
 
-    # Security
+    # Security — MUST override via SECRET_KEY env var in production
     SECRET_KEY: str = "dev-secret-key-change-in-production"
+
+    # CORS — additional allowed origins (comma-separated)
+    CORS_ORIGINS: str = ""
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
 
     # Stripe Payments
     STRIPE_SECRET_KEY: Optional[str] = None

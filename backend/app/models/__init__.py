@@ -7,6 +7,7 @@ from app.models.ingredient import Ingredient, IngredientAlias
 from app.models.product import Product, product_ingredients
 from app.models.safety_classification import SafetyClassification
 from app.models.subscriber import Subscriber
+from app.models.user import User
 
 __all__ = [
     # Enums
@@ -20,4 +21,5 @@ __all__ = [
     "product_ingredients",
     "SafetyClassification",
     "Subscriber",
+    "User",
 ]

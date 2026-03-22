@@ -1,0 +1,23 @@
+{
+  "skill_name": "app-analyst",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze my app and tell me what's wrong. It looks cheap and changes don't seem to work.",
+      "expected_output": "Structured report identifying uncommitted git changes as the reason changes aren't persisting, plus design and backend findings with severity levels and file paths.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Is this app secure enough to launch publicly? What needs fixing before real users start using it?",
+      "expected_output": "Security-focused report highlighting CORS wildcard, unauthenticated admin endpoints, unverified webhook signatures, and email header spoofing, with specific fixes.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Something feels off about the design even though we have nice fonts and animations. Can you figure out what it is?",
+      "expected_output": "Design-focused analysis identifying specific spacing inconsistencies, visual hierarchy issues, or UX gaps with file paths and line numbers from the frontend.",
+      "files": []
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import logging
 import os
 
 from app.core.config import settings
-from app.core.database import init_db
+from app.core.database import init_db, engine
 from app.api.v1.router import api_router
 
 # Configure logging
@@ -32,6 +32,17 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Pregnancy Safety Radar API...")
     init_db()
     logger.info("✅ Database initialized")
+    # Migrate: add tier column to subscribers if missing
+    try:
+        from sqlalchemy import text, inspect
+        inspector = inspect(engine)
+        columns = [c["name"] for c in inspector.get_columns("subscribers")]
+        if "tier" not in columns:
+            with engine.begin() as conn:
+                conn.execute(text("ALTER TABLE subscribers ADD COLUMN tier VARCHAR(20) DEFAULT 'pro' NOT NULL"))
+            logger.info("✅ Added 'tier' column to subscribers table")
+    except Exception as e:
+        logger.debug(f"Tier migration skipped: {e}")
     if settings.SECRET_KEY == "dev-secret-key-change-in-production":
         logger.warning("⚠️  Using default SECRET_KEY — set SECRET_KEY env var in production!")
     logger.info(f"✅ {settings.APP_NAME} v{settings.APP_VERSION} ready!")
@@ -97,6 +108,15 @@ async def root():
         "status": "healthy",
         "message": "BumpRadar API is running"
     }
+
+
+@app.get("/logo.png")
+async def serve_logo():
+    """Serve the logo image."""
+    logo_path = os.path.join(FRONTEND_DIR, "logo.png")
+    if os.path.isfile(logo_path):
+        return FileResponse(logo_path, media_type="image/png")
+    return FileResponse(status_code=404)
 
 
 @app.get("/health")

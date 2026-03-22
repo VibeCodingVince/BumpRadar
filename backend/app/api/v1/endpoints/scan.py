@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.core.database import get_db
-from app.core.rate_limit import check_scan_limit, record_scan, get_scan_info
+from app.core.rate_limit import check_scan_limit, record_scan, get_scan_info, TIER_LIMITS
 from app.core.auth import get_optional_user
 from app.schemas.scan import ScanRequest, ScanResponse
 from app.agents.orchestrator import OrchestratorAgent
@@ -25,12 +25,14 @@ def _get_client_ip(request: Request) -> str:
     return request.client.host
 
 
-def _check_premium(email: Optional[str], db: Session) -> bool:
-    """Check if an email has an active premium subscription."""
+def _get_tier(email: Optional[str], db: Session) -> str:
+    """Get the subscription tier for a user. Returns 'free', 'pro', or 'pro_plus'."""
     if not email:
-        return False
+        return "free"
     subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
-    return subscriber is not None and subscriber.status == "active"
+    if subscriber and subscriber.status == "active":
+        return subscriber.tier or "pro"
+    return "free"
 
 
 @router.post("/", response_model=ScanResponse)
@@ -60,7 +62,7 @@ async def scan_product(
 
     # Check premium status — JWT auth only (header spoofing removed)
     email = user.email if user else None
-    is_premium = _check_premium(email, db)
+    tier = _get_tier(email, db)
 
     # Determine scan type (photo scans cost more due to Vision API)
     is_photo = bool(request.image_base64)
@@ -68,42 +70,42 @@ async def scan_product(
     # Check rate limit
     ip = _get_client_ip(raw_request)
     allowed, remaining, total = check_scan_limit(
-        ip, is_premium=is_premium, email=email, is_photo=is_photo
+        ip, tier=tier, email=email, is_photo=is_photo
     )
 
     if not allowed:
-        if not is_premium and is_photo:
-            # Free user trying photo scan — this is a Pro feature
-            raise HTTPException(
-                status_code=403,
-                detail={
-                    "message": "Photo scanning is a Pro feature. Upgrade to BumpRadar Premium for $9.99/mo to unlock photo scans, or paste your ingredients as text for free!",
-                    "photo_pro_only": True,
-                    "is_premium": False,
-                },
-            )
-        elif is_premium and is_photo:
-            message = "Daily photo scan limit reached (5/day). Try pasting ingredients as text instead!"
-        elif is_premium:
-            message = "Daily scan limit reached (20/day). Your limit resets tomorrow!"
+        scan_limit, photo_limit = TIER_LIMITS.get(tier, TIER_LIMITS["free"])
+        if is_photo:
+            if tier == "pro_plus":
+                message = f"Daily photo scan limit reached ({photo_limit}/day). Try pasting ingredients as text instead!"
+            elif tier == "pro":
+                message = f"Daily photo scan limit reached ({photo_limit}/day). Upgrade to Pro+ for 20 photo scans/day!"
+            else:
+                message = "Photo scanning is a Pro feature. Upgrade to unlock!"
+        elif tier != "free":
+            message = f"Daily scan limit reached ({scan_limit}/day). Your limit resets tomorrow!"
         else:
-            message = "Daily scan limit reached! Upgrade to BumpRadar Premium for 20 scans/day."
+            message = "Daily scan limit reached. Try again tomorrow!"
         raise HTTPException(
             status_code=429,
             detail={
                 "message": message,
                 "scans_today": total,
-                "limit": 20 if is_premium else 3,
-                "is_premium": is_premium,
+                "limit": scan_limit,
+                "tier": tier,
+                "is_premium": tier != "free",
             },
         )
 
+    # Free photo scans use local Tesseract OCR ($0 cost)
+    use_local_ocr = is_photo and tier == "free"
+
     # Run scan
     orchestrator = OrchestratorAgent(db)
-    result = orchestrator.execute(request)
+    result = orchestrator.execute(request, use_local_ocr=use_local_ocr)
 
     # Record successful scan
-    record_scan(ip, is_premium=is_premium, email=email, is_photo=is_photo)
+    record_scan(ip, tier=tier, email=email, is_photo=is_photo)
 
     return result
 
@@ -118,5 +120,5 @@ async def scan_usage(
     """Get current scan usage for this user."""
     ip = _get_client_ip(request)
     resolved_email = user.email if user else email
-    is_premium = _check_premium(resolved_email, db)
-    return get_scan_info(ip, is_premium=is_premium, email=resolved_email)
+    tier = _get_tier(resolved_email, db)
+    return get_scan_info(ip, tier=tier, email=resolved_email)

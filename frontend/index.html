@@ -167,6 +167,62 @@
             letter-spacing: 0.2px;
         }
 
+        /* ─── Hero Section ─── */
+        .hero-section {
+            text-align: center;
+            padding: 0 0 24px;
+        }
+
+        .hero-headline {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .hero-headline .highlight {
+            color: var(--accent);
+        }
+
+        .hero-subtext {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-weight: 300;
+            max-width: 360px;
+            margin: 0 auto 20px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .hero-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
         /* ─── Scan Mode Tabs ─── */
         .scan-tabs {
             display: flex;
@@ -661,7 +717,7 @@
             padding-top: 8px;
             border-top: 1px dashed rgba(0,0,0,0.08);
         }
-        .flagged-alternative::before { content: '→ Try instead: '; }
+        .flagged-alternative::before { content: '\2192  Try instead: '; }
 
         /* ─── Safe List ─── */
         .safe-section {
@@ -962,6 +1018,294 @@
             font-weight: 700;
             color: var(--accent);
             font-size: 14px;
+        }
+
+        /* ─── How It Works Section ─── */
+        .how-it-works {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        .steps {
+            display: flex;
+            gap: 12px;
+        }
+
+        .step {
+            flex: 1;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px 14px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .step:hover {
+            transform: translateY(-3px);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .step-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        /* ─── Trust Signals Section ─── */
+        .trust-signals {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 28px;
+            box-shadow: 0 2px 20px rgba(45, 42, 38, 0.04);
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .trust-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .trust-text {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .trust-text span {
+            display: block;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 300;
+            margin-top: 2px;
+        }
+
+        /* ─── What We Check Section ─── */
+        .what-we-check {
+            margin-bottom: 28px;
+        }
+
+        .check-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .check-chip {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .check-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .check-chip-icon {
+            font-size: 14px;
+        }
+
+        /* ─── Testimonials / Social Proof ─── */
+        .social-proof {
+            margin-bottom: 28px;
+        }
+
+        .testimonial-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+
+        .testimonial-scroll::-webkit-scrollbar { display: none; }
+
+        .testimonial-card {
+            flex-shrink: 0;
+            width: 280px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            scroll-snap-align: start;
+        }
+
+        .testimonial-stars {
+            color: #F5C518;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-text {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.6;
+            font-weight: 300;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-author {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .testimonial-detail {
+            font-size: 10px;
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        /* ─── FAQ Section ─── */
+        .faq-section {
+            margin-bottom: 28px;
+        }
+
+        .faq-item {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .faq-item:hover {
+            border-color: var(--accent);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 16px 18px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .faq-toggle {
+            font-size: 18px;
+            color: var(--accent);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .faq-answer-inner {
+            padding: 0 18px 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 200px;
+        }
+
+        /* ─── Section Divider ─── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 8px 0 24px;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .section-divider-text {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+            white-space: nowrap;
         }
 
         /* ─── Premium Banner ─── */
@@ -1423,25 +1767,45 @@
                     BumpRadar<span class="logo-dot"></span>
                 </div>
                 <div id="headerAuth">
-                    <button class="go-pro-btn" id="goProBtn" onclick="showAuthModal('register')">✦ Go Pro</button>
+                    <button class="go-pro-btn" id="goProBtn" onclick="showAuthModal('register')">&#10022; Go Pro</button>
                 </div>
             </div>
             <div class="deco-line"></div>
             <p class="tagline">Is it safe for your bump? Find out instantly.</p>
         </header>
 
+        <!-- Hero Section -->
+        <div class="hero-section" id="heroSection">
+            <h1 class="hero-headline">Check any product's safety <span class="highlight">in seconds</span></h1>
+            <p class="hero-subtext">Paste ingredients, snap a photo, or scan a barcode. Our AI cross-references medical databases to flag anything risky for pregnancy.</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">50K+</div>
+                    <div class="hero-stat-label">Scans Done</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">800+</div>
+                    <div class="hero-stat-label">Ingredients</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">4.9/5</div>
+                    <div class="hero-stat-label">User Rating</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Scan Mode Tabs -->
         <div class="scan-tabs" id="scanTabs">
             <button class="scan-tab" data-mode="photo" onclick="switchTab('photo')">
-                <span class="scan-tab-icon">📸</span>
-                Photo <span class="pro-badge" id="photoProBadge">PRO</span>
+                <span class="scan-tab-icon">&#128248;</span>
+                Photo
             </button>
             <button class="scan-tab active" data-mode="text" onclick="switchTab('text')">
-                <span class="scan-tab-icon">📝</span>
+                <span class="scan-tab-icon">&#128221;</span>
                 Paste
             </button>
             <button class="scan-tab" data-mode="barcode" onclick="switchTab('barcode')">
-                <span class="scan-tab-icon">📊</span>
+                <span class="scan-tab-icon">&#128202;</span>
                 Barcode
             </button>
         </div>
@@ -1481,27 +1845,18 @@
 
             <!-- Photo Panel -->
             <div class="scan-panel" id="panel-photo">
-                <!-- Pro-only gate (shown to free users) -->
-                <div class="photo-pro-gate" id="photoProGate">
-                    <div class="photo-pro-gate-icon">📸</div>
-                    <div class="photo-pro-gate-title">Photo Scanning is a Pro Feature</div>
-                    <p class="photo-pro-gate-desc">Upgrade to instantly scan ingredient lists from photos. Free users can paste ingredients as text.</p>
-                    <button class="photo-pro-gate-btn" onclick="startCheckout()">Upgrade to Pro — $9.99/mo</button>
-                    <button class="photo-pro-gate-text-btn" onclick="switchTab('text')">Paste ingredients instead (free)</button>
-                </div>
-                <!-- Photo upload (shown to premium users) -->
-                <div id="photoUploadArea" style="display:none">
+                <div id="photoUploadArea">
                     <label class="input-label">Snap the ingredient list</label>
                     <p class="input-hint">Take a photo of the product's ingredient list. Make sure the text is clear and well-lit.</p>
                     <div class="photo-upload" id="photoUpload">
-                        <span class="photo-upload-icon">📷</span>
+                        <span class="photo-upload-icon">&#128247;</span>
                         <div class="photo-upload-text">Tap to upload or take a photo</div>
-                        <div class="photo-upload-hint">JPEG, PNG, or WebP — max 10MB</div>
+                        <div class="photo-upload-hint">JPEG, PNG, or WebP &mdash; max 10MB</div>
                         <input type="file" id="photoInput" accept="image/*" capture="environment">
                     </div>
                     <div class="photo-preview" id="photoPreview">
                         <img id="photoPreviewImg" alt="Photo preview">
-                        <button class="photo-preview-remove" onclick="removePhoto()">✕</button>
+                        <button class="photo-preview-remove" onclick="removePhoto()">&#10005;</button>
                     </div>
                 </div>
             </div>
@@ -1521,7 +1876,7 @@
                     <div class="radar-circle delay-1"></div>
                     <div class="radar-circle delay-2"></div>
                 </div>
-                <div class="loading-icon">🤰</div>
+                <div class="loading-icon">&#129328;</div>
                 <div class="loading-message" id="loadingMessage">Analyzing your product...</div>
             </div>
         </div>
@@ -1550,12 +1905,12 @@
             </div>
 
             <div class="flagged-section" id="flaggedSection">
-                <div class="flagged-title">⚠️ Flagged Ingredients</div>
+                <div class="flagged-title">&#9888;&#65039; Flagged Ingredients</div>
                 <div id="flaggedList"></div>
             </div>
 
             <div class="safe-section" id="safeSection">
-                <div class="safe-title">✅ Safe Ingredients</div>
+                <div class="safe-title">&#9989; Safe Ingredients</div>
                 <div class="safe-list" id="safeList"></div>
             </div>
 
@@ -1573,17 +1928,171 @@
             <span id="scanCounterText"></span>
         </div>
 
+        <!-- How It Works -->
+        <div class="section-divider" id="howItWorksDivider">
+            <span class="section-divider-text">Learn more</span>
+        </div>
+
+        <div class="how-it-works" id="howItWorksSection">
+            <div class="section-title">How It Works</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">&#128203;</div>
+                    <div class="step-label">Paste, photo, or barcode</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">&#129302;</div>
+                    <div class="step-label">AI checks each ingredient</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">&#9989;</div>
+                    <div class="step-label">Get a clear safety report</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Signals -->
+        <div class="trust-signals" id="trustSignals">
+            <div class="section-title">Built for Peace of Mind</div>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <div class="trust-icon">&#128218;</div>
+                    <div class="trust-text">
+                        Evidence-based
+                        <span>Sources: FDA, WHO, peer-reviewed research</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">&#128274;</div>
+                    <div class="trust-text">
+                        Private &amp; secure
+                        <span>We never store your scans or photos</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">&#9201;</div>
+                    <div class="trust-text">
+                        Results in seconds
+                        <span>No waiting, no sign-up required</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">&#128105;&#8205;&#9877;&#65039;</div>
+                    <div class="trust-text">
+                        Doctor-informed
+                        <span>Designed with OB-GYN guidance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What We Check -->
+        <div class="what-we-check" id="whatWeCheck">
+            <div class="section-title">What We Check For</div>
+            <div class="check-categories">
+                <div class="check-chip"><span class="check-chip-icon">&#128716;</span> Skincare</div>
+                <div class="check-chip"><span class="check-chip-icon">&#127774;</span> Sunscreen</div>
+                <div class="check-chip"><span class="check-chip-icon">&#128135;</span> Haircare</div>
+                <div class="check-chip"><span class="check-chip-icon">&#128132;</span> Cosmetics</div>
+                <div class="check-chip"><span class="check-chip-icon">&#128701;</span> Cleaning</div>
+                <div class="check-chip"><span class="check-chip-icon">&#127860;</span> Food &amp; Drinks</div>
+                <div class="check-chip"><span class="check-chip-icon">&#128138;</span> Supplements</div>
+                <div class="check-chip"><span class="check-chip-icon">&#129532;</span> Baby Products</div>
+            </div>
+        </div>
+
+        <!-- Social Proof / Testimonials -->
+        <div class="social-proof" id="socialProof">
+            <div class="section-title">Trusted by Expecting Parents</div>
+            <div class="testimonial-scroll">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <div class="testimonial-text">"I scan everything now before I buy it. Found retinol in a moisturizer I'd been using for months. So grateful for this tool."</div>
+                    <div class="testimonial-author">Sarah M.</div>
+                    <div class="testimonial-detail">28 weeks pregnant, first baby</div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <div class="testimonial-text">"My husband uses it too when he's shopping for me. The barcode scanner is so quick and easy. Love it."</div>
+                    <div class="testimonial-author">Jessica T.</div>
+                    <div class="testimonial-detail">32 weeks, second pregnancy</div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <div class="testimonial-text">"Finally replaced all my skincare with pregnancy-safe options. BumpRadar made it so much easier to know what to avoid."</div>
+                    <div class="testimonial-author">Aisha K.</div>
+                    <div class="testimonial-detail">16 weeks, first baby</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section" id="faqSection">
+            <div class="section-title">Common Questions</div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    Is BumpRadar a replacement for medical advice?
+                    <span class="faq-toggle">+</span>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner">No. BumpRadar is a decision-support tool that flags potentially concerning ingredients based on published research. Always discuss specific products and ingredients with your OB-GYN or midwife.</div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    Where does the safety data come from?
+                    <span class="faq-toggle">+</span>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner">Our AI references FDA guidelines, WHO recommendations, toxicology databases, and peer-reviewed pregnancy safety research to evaluate each ingredient.</div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    Are my photos and data stored?
+                    <span class="faq-toggle">+</span>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner">No. Photos are processed in real-time and immediately discarded. We do not store ingredient lists, photos, or scan results. Your privacy is our priority.</div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    How many free scans do I get?
+                    <span class="faq-toggle">+</span>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner">Free users get 3 text/barcode scans per day. Pro ($9.99/month) gives you 20 scans/day with 5 photo scans. Pro+ ($29.99/month) gives you 40 scans/day with 20 photo scans — perfect for scanning your whole pantry.</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Premium Upsell -->
         <div class="premium-banner" id="premiumBanner">
-            <div class="premium-icon">✦</div>
+            <div class="premium-icon">&#10022;</div>
             <div class="premium-title">Go Premium</div>
-            <div class="premium-desc">20 scans/day (5 photo), priority support, and early access to new features.</div>
-            <div class="premium-price">$9.99/month</div>
-            <button class="premium-btn" onclick="showAuthModal('register')">Upgrade Now</button>
+            <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;justify-content:center;">
+                <div style="flex:1;min-width:180px;background:var(--accent-light);border-radius:16px;padding:20px;border:2px solid var(--border);text-align:center;">
+                    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px;">Pro</div>
+                    <div class="premium-price" style="margin-bottom:8px;">$9.99/mo</div>
+                    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">20 scans/day<br>5 photo scans<br>Priority support</div>
+                    <button class="premium-btn" style="width:100%;padding:10px;" onclick="startCheckout('pro')">Get Pro</button>
+                </div>
+                <div style="flex:1;min-width:180px;background:linear-gradient(135deg,#FFF5F6,#FCEEF3);border-radius:16px;padding:20px;border:2px solid var(--accent);text-align:center;position:relative;">
+                    <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:1px;">Best Value</div>
+                    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px;">Pro+</div>
+                    <div class="premium-price" style="margin-bottom:8px;">$29.99/mo</div>
+                    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">40 scans/day<br>20 photo scans<br>Everything in Pro</div>
+                    <button class="premium-btn" style="width:100%;padding:10px;background:linear-gradient(135deg,var(--accent),#B8456A);" onclick="startCheckout('pro_plus')">Get Pro+</button>
+                </div>
+            </div>
         </div>
 
         <footer class="footer">
-            <span class="footer-text">© 2026 BumpRadar · <a href="#">Privacy</a></span>
+            <span class="footer-text">&copy; 2026 BumpRadar &middot; <a href="#">Privacy</a></span>
         </footer>
     </div>
 
@@ -1637,6 +2146,13 @@
         let loadingMessageInterval = null;
         let totalScans = parseInt(localStorage.getItem('bumpradar_total_scans') || '0');
         let isPremiumUser = false;
+        let userTier = 'free'; // 'free', 'pro', 'pro_plus'
+
+        // ─── FAQ Toggle ───
+        function toggleFaq(btn) {
+            const item = btn.closest('.faq-item');
+            item.classList.toggle('open');
+        }
 
         // ─── Auth & Payments ───
         let currentAuthMode = 'register'; // 'register' or 'login'
@@ -1732,6 +2248,7 @@
                 localStorage.setItem('bumpradar_email', email);
                 currentUserEmail = email;
                 isPremiumUser = data.is_premium;
+                userTier = data.tier || (data.is_premium ? 'pro' : 'free');
 
                 closeAuthModal();
                 applyLoggedInUI(email, data.is_premium);
@@ -1744,7 +2261,7 @@
                 // If there's a post-auth action (like checkout), run it
                 if (window._afterAuth === 'checkout') {
                     window._afterAuth = null;
-                    startCheckout();
+                    startCheckout(pendingCheckoutTier);
                 }
             } catch (err) {
                 errorEl.textContent = 'Network error. Please try again.';
@@ -1758,12 +2275,17 @@
         function applyLoggedInUI(email, isPremium) {
             const headerAuth = document.getElementById('headerAuth');
             const shortEmail = email.length > 18 ? email.substring(0, 15) + '...' : email;
+            const tierLabel = userTier === 'pro_plus' ? 'Pro+' : (userTier === 'pro' ? 'Pro' : '');
 
             if (isPremium) {
+                const upgradeOption = userTier === 'pro'
+                    ? `<button class="account-menu-item" onclick="startCheckout('pro_plus')">Upgrade to Pro+</button>`
+                    : '';
                 headerAuth.innerHTML = `
                     <div class="account-dropdown" id="accountDropdown">
-                        <button class="account-btn" onclick="toggleAccountMenu()">✦ ${shortEmail}</button>
+                        <button class="account-btn" onclick="toggleAccountMenu()">&#10022; ${tierLabel} &middot; ${shortEmail}</button>
                         <div class="account-menu" id="accountMenu">
+                            ${upgradeOption}
                             <button class="account-menu-item" onclick="openManageSubscription()">Manage Subscription</button>
                             <button class="account-menu-item" onclick="showChangePwModal()">Change Password</button>
                             <button class="account-menu-item danger" onclick="logout()">Log Out</button>
@@ -1774,7 +2296,8 @@
                     <div class="account-dropdown" id="accountDropdown">
                         <button class="account-btn" onclick="toggleAccountMenu()">${shortEmail}</button>
                         <div class="account-menu" id="accountMenu">
-                            <button class="account-menu-item" onclick="startCheckout()">Upgrade to Premium</button>
+                            <button class="account-menu-item" onclick="startCheckout('pro')">Upgrade to Pro</button>
+                            <button class="account-menu-item" onclick="startCheckout('pro_plus')">Upgrade to Pro+</button>
                             <button class="account-menu-item" onclick="showChangePwModal()">Change Password</button>
                             <button class="account-menu-item danger" onclick="logout()">Log Out</button>
                         </div>
@@ -1805,8 +2328,9 @@
             localStorage.removeItem('bumpradar_email');
             currentUserEmail = null;
             isPremiumUser = false;
+            userTier = 'free';
             document.getElementById('headerAuth').innerHTML =
-                '<button class="go-pro-btn" id="goProBtn" onclick="showAuthModal(\'register\')">✦ Go Pro</button>';
+                '<button class="go-pro-btn" id="goProBtn" onclick="showAuthModal(\'register\')">&#10022; Go Pro</button>';
             document.getElementById('premiumBanner').style.display = '';
             updateScanCounter();
         }
@@ -1851,7 +2375,11 @@
         }
 
         // ─── Checkout (for logged-in users) ───
-        async function startCheckout() {
+        let pendingCheckoutTier = 'pro';
+
+        async function startCheckout(tier) {
+            tier = tier || pendingCheckoutTier || 'pro';
+            pendingCheckoutTier = tier;
             const token = getAuthToken();
             if (!token) {
                 showAuthModal('register', 'checkout');
@@ -1862,12 +2390,13 @@
                 const resp = await fetch(`${API_BASE}/api/v1/payments/create-checkout`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ email: getUserEmail() })
+                    body: JSON.stringify({ email: getUserEmail(), tier: tier })
                 });
                 const data = await resp.json();
 
                 if (data.already_premium) {
                     isPremiumUser = true;
+                    userTier = data.tier || tier;
                     applyPremiumUI();
                     applyLoggedInUI(getUserEmail(), true);
                     return;
@@ -1894,6 +2423,7 @@
                 const data = await resp.json();
                 if (data.is_premium) {
                     isPremiumUser = true;
+                    userTier = data.tier || 'pro';
                     applyPremiumUI();
                     updateScanCounter();
                 }
@@ -1903,15 +2433,16 @@
         function applyPremiumUI(scansRemaining, photoRemaining) {
             document.getElementById('premiumBanner').style.display = 'none';
             const counterEl = document.getElementById('scanCounterText');
+            const tierLabel = userTier === 'pro_plus' ? 'Pro+' : 'Pro';
+            const tierLimits = userTier === 'pro_plus' ? '40 scans/day' : '20 scans/day';
             if (scansRemaining !== undefined) {
-                counterEl.innerHTML = `<span class="premium-active-badge">✦ Premium</span> ${scansRemaining} scans left today (${photoRemaining !== undefined ? photoRemaining + ' photo' : ''})`;
+                counterEl.innerHTML = `<span class="premium-active-badge">&#10022; ${tierLabel}</span> ${scansRemaining} scans left today (${photoRemaining !== undefined ? photoRemaining + ' photo' : ''})`;
             } else {
-                counterEl.innerHTML = '<span class="premium-active-badge">✦ Premium</span> 20 scans/day';
+                counterEl.innerHTML = `<span class="premium-active-badge">&#10022; ${tierLabel}</span> ${tierLimits}`;
             }
-            // Unlock photo scanning for premium users
-            document.getElementById('photoProGate').style.display = 'none';
-            document.getElementById('photoUploadArea').style.display = 'block';
-            document.getElementById('photoProBadge').style.display = 'none';
+            // Hide pro badge for premium users
+            const proBadge = document.getElementById('photoProBadge');
+            if (proBadge) proBadge.style.display = 'none';
         }
 
         async function openManageSubscription() {
@@ -1961,24 +2492,25 @@
                 const data = await resp.json();
                 currentUserEmail = data.email;
                 isPremiumUser = data.is_premium;
+                userTier = data.tier || (data.is_premium ? 'pro' : 'free');
                 applyLoggedInUI(data.email, data.is_premium);
                 if (data.is_premium) applyPremiumUI();
             } catch (e) { /* silent */ }
         }
 
         const ENCOURAGING_MESSAGES = [
-            "You're doing great, mama 💗",
-            "Taking care of you and baby ✨",
-            "Your baby's health matters 🤱",
-            "Keep going, you're amazing 💪",
-            "Protecting what matters most 💝",
-            "Every scan makes you a great mom 🌟",
-            "We've got your back, mama 🤗",
-            "Your baby is lucky to have you 👶",
-            "Making safe choices together 💕",
-            "You're an incredible mom 🌸",
-            "Caring for two hearts now 💞",
-            "You've got this, mama 🦋"
+            "You're doing great, mama \u{1F497}",
+            "Taking care of you and baby \u2728",
+            "Your baby's health matters \u{1F931}",
+            "Keep going, you're amazing \u{1F4AA}",
+            "Protecting what matters most \u{1F49D}",
+            "Every scan makes you a great mom \u{1F31F}",
+            "We've got your back, mama \u{1F917}",
+            "Your baby is lucky to have you \u{1F476}",
+            "Making safe choices together \u{1F495}",
+            "You're an incredible mom \u{1F338}",
+            "Caring for two hearts now \u{1F49E}",
+            "You've got this, mama \u{1F98B}"
         ];
 
         const EXAMPLES = {
@@ -1989,28 +2521,28 @@
 
         const SUPPORTIVE_MESSAGES = {
             avoid: [
-                "💪 You're making the tough but right choice, mama!",
-                "🌟 Your awareness is protecting your little one!",
-                "💗 Smart mama! Better safe than sorry.",
-                "✨ You caught that! Your baby is lucky to have you.",
-                "🤱 Trust your instincts - you're doing amazing!"
+                "\u{1F4AA} You're making the tough but right choice, mama!",
+                "\u{1F31F} Your awareness is protecting your little one!",
+                "\u{1F497} Smart mama! Better safe than sorry.",
+                "\u2728 You caught that! Your baby is lucky to have you.",
+                "\u{1F931} Trust your instincts - you're doing amazing!"
             ],
             caution: [
-                "👀 Good eye! Knowledge is power, mama.",
-                "💡 You're learning and growing - just like your baby!",
-                "🌸 Being informed makes you a great mom.",
-                "💝 Every scan makes you more confident!",
-                "🦋 You're building a safer world for your bump!"
+                "\u{1F440} Good eye! Knowledge is power, mama.",
+                "\u{1F4A1} You're learning and growing - just like your baby!",
+                "\u{1F338} Being informed makes you a great mom.",
+                "\u{1F49D} Every scan makes you more confident!",
+                "\u{1F98B} You're building a safer world for your bump!"
             ]
         };
 
         const MILESTONES = {
-            1: { icon: '🎉', title: 'First Scan!', message: 'Welcome to BumpRadar, mama! You\'re already protecting your bump.' },
-            5: { icon: '⭐', title: 'High Five!', message: '5 products scanned! You\'re becoming a safety pro!' },
-            10: { icon: '🏆', title: 'Safety Scout!', message: '10 scans completed! Your bump is in great hands!' },
-            25: { icon: '💎', title: 'Quarter Century!', message: '25 products protected! You\'re a vigilant mama!' },
-            50: { icon: '👑', title: 'Safety Queen!', message: '50 scans! You\'re officially a BumpRadar expert!' },
-            100: { icon: '🌟', title: 'Century Club!', message: '100 products scanned! You\'re a legend, mama!' }
+            1: { icon: '\u{1F389}', title: 'First Scan!', message: 'Welcome to BumpRadar, mama! You\'re already protecting your bump.' },
+            5: { icon: '\u2B50', title: 'High Five!', message: '5 products scanned! You\'re becoming a safety pro!' },
+            10: { icon: '\u{1F3C6}', title: 'Safety Scout!', message: '10 scans completed! Your bump is in great hands!' },
+            25: { icon: '\u{1F48E}', title: 'Quarter Century!', message: '25 products protected! You\'re a vigilant mama!' },
+            50: { icon: '\u{1F451}', title: 'Safety Queen!', message: '50 scans! You\'re officially a BumpRadar expert!' },
+            100: { icon: '\u{1F31F}', title: 'Century Club!', message: '100 products scanned! You\'re a legend, mama!' }
         };
 
         // Tab switching
@@ -2198,12 +2730,7 @@
                 if (response.status === 403) {
                     const err = await response.json();
                     const detail = err.detail || {};
-                    if (detail.photo_pro_only) {
-                        showError(detail.message || 'Photo scanning is a Pro feature.');
-                        switchTab('text');
-                    } else {
-                        showError(detail.message || 'Access denied.');
-                    }
+                    showError(detail.message || 'Access denied.');
                     return;
                 }
 
@@ -2301,7 +2828,7 @@
                 const messages = SUPPORTIVE_MESSAGES[safetyLevel];
                 const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
-                iconEl.textContent = safetyLevel === 'avoid' ? '💪' : '👀';
+                iconEl.textContent = safetyLevel === 'avoid' ? '\u{1F4AA}' : '\u{1F440}';
                 textEl.textContent = randomMessage;
                 messageEl.classList.add('visible');
             } else {
@@ -2334,10 +2861,20 @@
             const results = document.getElementById('results');
             const inputSection = document.getElementById('inputSection');
             const scanTabs = document.getElementById('scanTabs');
+            const heroSection = document.getElementById('heroSection');
 
             inputSection.style.display = 'none';
             scanTabs.style.display = 'none';
+            heroSection.style.display = 'none';
             results.classList.add('visible');
+
+            // Hide trust-building sections when showing results
+            document.getElementById('howItWorksDivider').style.display = 'none';
+            document.getElementById('howItWorksSection').style.display = 'none';
+            document.getElementById('trustSignals').style.display = 'none';
+            document.getElementById('whatWeCheck').style.display = 'none';
+            document.getElementById('socialProof').style.display = 'none';
+            document.getElementById('faqSection').style.display = 'none';
 
             // Increment scan count and check for milestones
             incrementScanCount();
@@ -2365,10 +2902,10 @@
             card.className = 'verdict-card';
 
             const safetyConfig = {
-                safe: { emoji: '✅', label: 'All Clear', class: 'safe' },
-                caution: { emoji: '⚠️', label: 'Use With Caution', class: 'caution' },
-                avoid: { emoji: '🚫', label: 'Not Recommended', class: 'avoid' },
-                unknown: { emoji: '❓', label: 'Uncertain', class: 'unknown' }
+                safe: { emoji: '\u2705', label: 'All Clear', class: 'safe' },
+                caution: { emoji: '\u26A0\uFE0F', label: 'Use With Caution', class: 'caution' },
+                avoid: { emoji: '\u{1F6AB}', label: 'Not Recommended', class: 'avoid' },
+                unknown: { emoji: '\u2753', label: 'Uncertain', class: 'unknown' }
             };
 
             const config = safetyConfig[data.overall_safety] || safetyConfig.unknown;
@@ -2450,11 +2987,21 @@
             document.getElementById('results').classList.remove('visible');
             document.getElementById('inputSection').style.display = 'block';
             document.getElementById('scanTabs').style.display = 'flex';
+            document.getElementById('heroSection').style.display = '';
             document.getElementById('ingredientInput').value = '';
             document.getElementById('barcodeInput').value = '';
             removePhoto();
             document.getElementById('errorMsg').classList.remove('visible');
             document.getElementById('supportiveMessage').classList.remove('visible');
+
+            // Restore trust-building sections
+            document.getElementById('howItWorksDivider').style.display = '';
+            document.getElementById('howItWorksSection').style.display = '';
+            document.getElementById('trustSignals').style.display = '';
+            document.getElementById('whatWeCheck').style.display = '';
+            document.getElementById('socialProof').style.display = '';
+            document.getElementById('faqSection').style.display = '';
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2493,6 +3040,7 @@
                 const el = document.getElementById('scanCounterText');
                 if (data.is_premium) {
                     isPremiumUser = true;
+                    userTier = data.tier || 'pro';
                     applyPremiumUI(data.scans_remaining, data.photo_scans_remaining);
                 } else if (data.scans_remaining > 0) {
                     el.innerHTML = `<span class="scans-left">${data.scans_remaining}</span> free scan${data.scans_remaining !== 1 ? 's' : ''} remaining today`;

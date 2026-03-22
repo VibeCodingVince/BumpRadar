@@ -20,12 +20,14 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     email: str
     is_premium: bool
+    tier: str = "free"  # free, pro, pro_plus
 
 
 class UserResponse(BaseModel):
     id: int
     email: str
     is_premium: bool
+    tier: str = "free"  # free, pro, pro_plus
     created_at: datetime
 
     class Config:

@@ -24,10 +24,12 @@ from app.schemas.auth import (
 router = APIRouter()
 
 
-def _is_premium(email: str, db: Session) -> bool:
-    """Check if email has active premium subscription."""
+def _get_subscription_info(email: str, db: Session) -> tuple:
+    """Get subscription status and tier for an email. Returns (is_premium, tier)."""
     subscriber = db.query(Subscriber).filter(Subscriber.email == email).first()
-    return subscriber is not None and subscriber.status == "active"
+    if subscriber and subscriber.status == "active":
+        return True, subscriber.tier or "pro"
+    return False, "free"
 
 
 @router.post("/register", response_model=TokenResponse)
@@ -49,10 +51,12 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     token = create_access_token({"sub": user.email, "user_id": user.id})
+    is_premium, tier = _get_subscription_info(user.email, db)
     return TokenResponse(
         access_token=token,
         email=user.email,
-        is_premium=_is_premium(user.email, db),
+        is_premium=is_premium,
+        tier=tier,
     )
 
 
@@ -67,10 +71,12 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
         )
 
     token = create_access_token({"sub": user.email, "user_id": user.id})
+    is_premium, tier = _get_subscription_info(user.email, db)
     return TokenResponse(
         access_token=token,
         email=user.email,
-        is_premium=_is_premium(user.email, db),
+        is_premium=is_premium,
+        tier=tier,
     )
 
 
@@ -80,10 +86,12 @@ async def get_profile(
     db: Session = Depends(get_db),
 ):
     """Get current user profile."""
+    is_premium, tier = _get_subscription_info(user.email, db)
     return UserResponse(
         id=user.id,
         email=user.email,
-        is_premium=_is_premium(user.email, db),
+        is_premium=is_premium,
+        tier=tier,
         created_at=user.created_at,
     )
 

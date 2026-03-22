@@ -38,7 +38,8 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: Optional[str] = None
     STRIPE_PUBLISHABLE_KEY: Optional[str] = None
     STRIPE_WEBHOOK_SECRET: Optional[str] = None
-    STRIPE_PRICE_ID: Optional[str] = None
+    STRIPE_PRICE_ID: Optional[str] = None  # Pro tier ($9.99/mo)
+    STRIPE_PRICE_ID_PRO_PLUS: Optional[str] = None  # Pro+ tier ($29.99/mo)
     FRONTEND_URL: str = "http://localhost:8000"
 
     # Monitoring

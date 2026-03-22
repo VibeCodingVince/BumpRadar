@@ -70,17 +70,17 @@ async def scan_product(
 
     if not allowed:
         if is_premium and is_photo:
-            message = "Daily photo scan limit reached (15/day). Try pasting ingredients as text instead — it's unlimited!"
+            message = "Daily photo scan limit reached (5/day). Try pasting ingredients as text instead!"
         elif is_premium:
-            message = "Daily scan limit reached (30/day). Your limit resets tomorrow!"
+            message = "Daily scan limit reached (20/day). Your limit resets tomorrow!"
         else:
-            message = "Daily scan limit reached! Upgrade to BumpRadar Premium for 30 scans/day."
+            message = "Daily scan limit reached! Upgrade to BumpRadar Premium for 20 scans/day."
         raise HTTPException(
             status_code=429,
             detail={
                 "message": message,
                 "scans_today": total,
-                "limit": 30 if is_premium else 3,
+                "limit": 20 if is_premium else 3,
                 "is_premium": is_premium,
             },
         )

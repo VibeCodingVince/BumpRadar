@@ -13,6 +13,7 @@ from app.core.auth import (
 )
 from app.models.user import User
 from app.models.subscriber import Subscriber
+from app.models.scan_history import ScanHistory
 from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
@@ -44,6 +45,7 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
 
     user = User(
         email=req.email,
+        username=req.username,
         hashed_password=hash_password(req.password),
     )
     db.add(user)
@@ -55,6 +57,7 @@ async def register(req: RegisterRequest, db: Session = Depends(get_db)):
     return TokenResponse(
         access_token=token,
         email=user.email,
+        username=user.username,
         is_premium=is_premium,
         tier=tier,
     )
@@ -75,6 +78,7 @@ async def login(req: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(
         access_token=token,
         email=user.email,
+        username=user.username,
         is_premium=is_premium,
         tier=tier,
     )
@@ -90,10 +94,26 @@ async def get_profile(
     return UserResponse(
         id=user.id,
         email=user.email,
+        username=user.username,
         is_premium=is_premium,
         tier=tier,
         created_at=user.created_at,
     )
+
+
+@router.put("/username")
+async def update_username(
+    req: dict,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update display name."""
+    username = (req.get("username") or "").strip()[:50]
+    if not username:
+        raise HTTPException(status_code=400, detail="Username is required")
+    user.username = username
+    db.commit()
+    return {"username": user.username}
 
 
 @router.post("/change-password")
@@ -112,3 +132,40 @@ async def change_password(
     user.hashed_password = hash_password(req.new_password)
     db.commit()
     return {"message": "Password updated successfully"}
+
+
+@router.get("/history")
+async def get_scan_history(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    limit: int = 50,
+    offset: int = 0,
+):
+    """Get scan history for authenticated user."""
+    scans = (
+        db.query(ScanHistory)
+        .filter(ScanHistory.user_id == user.id)
+        .order_by(ScanHistory.created_at.desc())
+        .offset(offset)
+        .limit(min(limit, 100))
+        .all()
+    )
+    total = db.query(ScanHistory).filter(ScanHistory.user_id == user.id).count()
+    return {
+        "scans": [
+            {
+                "id": s.id,
+                "scan_type": s.scan_type,
+                "input_summary": s.input_summary,
+                "overall_safety": s.overall_safety,
+                "verdict_message": s.verdict_message,
+                "flagged_count": s.flagged_count,
+                "total_ingredients": s.total_ingredients,
+                "product_name": s.product_name,
+                "product_brand": s.product_brand,
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+            }
+            for s in scans
+        ],
+        "total": total,
+    }

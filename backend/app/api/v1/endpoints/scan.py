@@ -13,6 +13,7 @@ from app.schemas.scan import ScanRequest, ScanResponse
 from app.agents.orchestrator import OrchestratorAgent
 from app.models.subscriber import Subscriber
 from app.models.user import User
+from app.models.scan_history import ScanHistory
 
 router = APIRouter()
 
@@ -106,6 +107,28 @@ async def scan_product(
 
     # Record successful scan
     record_scan(ip, tier=tier, email=email, is_photo=is_photo)
+
+    # Save to scan history if user is logged in
+    if user:
+        scan_type = "photo" if is_photo else ("barcode" if request.barcode else "text")
+        input_summary = (
+            result.product_name
+            or request.barcode
+            or (request.ingredient_text[:100] if request.ingredient_text else "Photo scan")
+        )
+        history = ScanHistory(
+            user_id=user.id,
+            scan_type=scan_type,
+            input_summary=input_summary,
+            overall_safety=result.overall_safety.value if hasattr(result.overall_safety, 'value') else str(result.overall_safety),
+            verdict_message=result.verdict_message,
+            flagged_count=len(result.flagged_ingredients),
+            total_ingredients=result.total_ingredients_analyzed,
+            product_name=result.product_name,
+            product_brand=result.product_brand,
+        )
+        db.add(history)
+        db.commit()
 
     return result
 

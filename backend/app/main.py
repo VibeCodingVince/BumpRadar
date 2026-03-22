@@ -32,17 +32,24 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Pregnancy Safety Radar API...")
     init_db()
     logger.info("✅ Database initialized")
-    # Migrate: add tier column to subscribers if missing
+    # Run migrations
     try:
         from sqlalchemy import text, inspect
         inspector = inspect(engine)
-        columns = [c["name"] for c in inspector.get_columns("subscribers")]
-        if "tier" not in columns:
+        # Migrate: add tier column to subscribers if missing
+        sub_columns = [c["name"] for c in inspector.get_columns("subscribers")]
+        if "tier" not in sub_columns:
             with engine.begin() as conn:
                 conn.execute(text("ALTER TABLE subscribers ADD COLUMN tier VARCHAR(20) DEFAULT 'pro' NOT NULL"))
             logger.info("✅ Added 'tier' column to subscribers table")
+        # Migrate: add username column to users if missing
+        user_columns = [c["name"] for c in inspector.get_columns("users")]
+        if "username" not in user_columns:
+            with engine.begin() as conn:
+                conn.execute(text("ALTER TABLE users ADD COLUMN username VARCHAR(50)"))
+            logger.info("✅ Added 'username' column to users table")
     except Exception as e:
-        logger.debug(f"Tier migration skipped: {e}")
+        logger.debug(f"Migration skipped: {e}")
     if settings.SECRET_KEY == "dev-secret-key-change-in-production":
         logger.warning("⚠️  Using default SECRET_KEY — set SECRET_KEY env var in production!")
     logger.info(f"✅ {settings.APP_NAME} v{settings.APP_VERSION} ready!")

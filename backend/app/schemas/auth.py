@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class RegisterRequest(BaseModel):
     email: str
+    username: str = Field(None, max_length=50, description="Display name")
     password: str = Field(..., min_length=8, description="Minimum 8 characters")
 
 
@@ -19,6 +20,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     email: str
+    username: str = None
     is_premium: bool
     tier: str = "free"  # free, pro, pro_plus
 
@@ -26,6 +28,7 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    username: str = None
     is_premium: bool
     tier: str = "free"  # free, pro, pro_plus
     created_at: datetime

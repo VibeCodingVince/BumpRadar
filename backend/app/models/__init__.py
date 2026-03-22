@@ -8,6 +8,7 @@ from app.models.product import Product, product_ingredients
 from app.models.safety_classification import SafetyClassification
 from app.models.subscriber import Subscriber
 from app.models.user import User
+from app.models.scan_history import ScanHistory
 
 __all__ = [
     # Enums
@@ -22,4 +23,5 @@ __all__ = [
     "SafetyClassification",
     "Subscriber",
     "User",
+    "ScanHistory",
 ]

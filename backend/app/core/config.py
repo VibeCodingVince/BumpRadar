@@ -51,6 +51,7 @@ class Settings(BaseSettings):
 
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
+    DAILY_API_CALL_LIMIT: int = 5000
 
     class Config:
         env_file = ".env"

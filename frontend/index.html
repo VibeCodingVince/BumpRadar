@@ -13,6 +13,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
     <style>
         :root {
             --safe: #5BA67A;
@@ -39,6 +41,25 @@
             --radius: 20px;
             --font-display: 'Fraunces', Georgia, serif;
             --font-body: 'Lexend', sans-serif;
+
+            /* ── Premium shadow system ── */
+            --shadow-sm: 0 1px 3px rgba(61,46,60,0.08), 0 1px 2px rgba(61,46,60,0.04);
+            --shadow-md: 0 4px 16px rgba(61,46,60,0.08), 0 2px 6px rgba(61,46,60,0.04);
+            --shadow-lg: 0 12px 40px rgba(61,46,60,0.12), 0 4px 12px rgba(61,46,60,0.06);
+            --shadow-glow: 0 8px 30px rgba(212,112,143,0.28);
+            --shadow-glow-lg: 0 16px 56px rgba(212,112,143,0.38);
+
+            /* ── Glass surfaces ── */
+            --surface-glass: rgba(255,255,255,0.72);
+            --surface-elevated: rgba(255,255,255,0.92);
+            --border-glass: rgba(255,255,255,0.65);
+            --border-subtle: rgba(61,46,60,0.06);
+            --inset-highlight: inset 0 1px 0 rgba(255,255,255,0.9);
+
+            /* ── Premium easing ── */
+            --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2118,6 +2139,903 @@
             margin-bottom: 8px;
             display: block;
         }
+
+        /* ═══════════════════════════════════════════════════════
+           PREMIUM 3D UI LAYER
+           ═══════════════════════════════════════════════════════ */
+
+        /* ─── Animated gradient background ─── */
+        body {
+            background: linear-gradient(
+                135deg,
+                #FFF5F6 0%,
+                #FCE8EB 20%,
+                #FFF5F6 40%,
+                #FCEEF3 60%,
+                #FFF0F3 80%,
+                #FFF5F6 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientDrift 24s ease infinite;
+        }
+
+        @keyframes gradientDrift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ─── Hero ambient orbs ─── */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(48px);
+            z-index: 0;
+        }
+        .hero-orb-1 {
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(212,112,143,0.14) 0%, transparent 70%);
+            top: -70px; right: -50px;
+            animation: orbFloat1 9s ease-in-out infinite;
+        }
+        .hero-orb-2 {
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(91,166,122,0.09) 0%, transparent 70%);
+            top: 20px; left: -40px;
+            animation: orbFloat2 11s ease-in-out infinite 3s;
+        }
+        .hero-orb-3 {
+            width: 120px; height: 120px;
+            background: radial-gradient(circle, rgba(212,112,143,0.08) 0%, transparent 70%);
+            bottom: -20px; left: 30%;
+            animation: orbFloat1 13s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33%  { transform: translate(-8px, -14px) scale(1.04); }
+            66%  { transform: translate(6px, -6px) scale(0.97); }
+        }
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(8px, -10px) scale(1.07); }
+        }
+
+        .hero-section {
+            position: relative;
+            overflow: visible;
+        }
+        .hero-section > :not(.hero-orb) { position: relative; z-index: 1; }
+
+        /* ─── Hero stats — glass pill ─── */
+        .hero-stats {
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.85);
+            border-radius: 20px;
+            padding: 16px 28px;
+            box-shadow:
+                0 4px 24px rgba(212,112,143,0.1),
+                var(--inset-highlight);
+            display: inline-flex;
+            width: 100%;
+            justify-content: center;
+            gap: 32px;
+            margin: 0 auto;
+        }
+
+        .hero-stat-number {
+            background: linear-gradient(135deg, var(--accent), #E8A4BE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ─── Scan tabs — glass style ─── */
+        .scan-tab {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: all 0.35s var(--ease-spring);
+        }
+        .scan-tab.active {
+            box-shadow:
+                0 6px 24px rgba(212,112,143,0.32),
+                0 2px 8px rgba(212,112,143,0.18),
+                var(--inset-highlight);
+            transform: translateY(-3px);
+        }
+        .scan-tab:not(.active):hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+            border-color: rgba(212,112,143,0.3);
+            color: var(--text);
+        }
+
+        /* ─── Input section — glassmorphism ─── */
+        .input-section {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.82);
+            box-shadow:
+                0 8px 36px rgba(61,46,60,0.08),
+                0 2px 8px rgba(61,46,60,0.04),
+                var(--inset-highlight);
+            transition: box-shadow 0.45s var(--ease-spring), transform 0.45s var(--ease-spring);
+        }
+        .input-section:focus-within {
+            box-shadow:
+                0 12px 48px rgba(61,46,60,0.1),
+                0 4px 14px rgba(212,112,143,0.1),
+                0 0 0 2px rgba(212,112,143,0.12),
+                var(--inset-highlight);
+        }
+
+        /* ─── Scan button — layered shadow + shine sweep ─── */
+        .scan-btn {
+            background: linear-gradient(135deg, #D4708F 0%, #E095B0 50%, #D4708F 100%);
+            background-size: 200% 100%;
+            box-shadow:
+                0 4px 16px rgba(212,112,143,0.32),
+                0 2px 6px rgba(212,112,143,0.2),
+                var(--inset-highlight);
+            transition: all 0.38s var(--ease-spring);
+            letter-spacing: 1.2px;
+        }
+        .scan-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -110%;
+            width: 55%; height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.28),
+                transparent
+            );
+            transform: skewX(-22deg);
+            transition: left 0s;
+            pointer-events: none;
+        }
+        .scan-btn:hover:not(:disabled)::after {
+            left: 160%;
+            transition: left 0.65s ease;
+        }
+        .scan-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.005);
+            box-shadow:
+                0 10px 32px rgba(212,112,143,0.42),
+                0 4px 12px rgba(212,112,143,0.28),
+                var(--inset-highlight);
+            background-position: 100% 0;
+        }
+        .scan-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow:
+                0 4px 14px rgba(212,112,143,0.3),
+                inset 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        /* ─── Go Pro button — premium ─── */
+        .go-pro-btn {
+            background: linear-gradient(135deg, rgba(212,112,143,0.06), rgba(232,164,190,0.03));
+            box-shadow: 0 2px 10px rgba(212,112,143,0.14), var(--inset-highlight);
+            transition: all 0.32s var(--ease-spring);
+        }
+        .go-pro-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 6px 22px rgba(212,112,143,0.38), var(--inset-highlight);
+            transform: translateY(-1px);
+        }
+
+        /* ─── Premium button — shine sweep ─── */
+        .premium-btn {
+            box-shadow:
+                0 4px 16px rgba(212,112,143,0.32),
+                0 2px 6px rgba(212,112,143,0.2),
+                var(--inset-highlight);
+            transition: all 0.38s var(--ease-spring);
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -110%;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+            transform: skewX(-22deg);
+            pointer-events: none;
+        }
+        .premium-btn:hover::after {
+            left: 160%;
+            transition: left 0.65s ease;
+        }
+        .premium-btn:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 10px 32px rgba(212,112,143,0.42),
+                0 4px 12px rgba(212,112,143,0.28),
+                var(--inset-highlight);
+        }
+
+        /* ─── Share & scan-again buttons ─── */
+        .share-btn {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: all 0.32s var(--ease-spring);
+        }
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+            border-color: var(--text);
+        }
+        .scan-again-btn {
+            transition: all 0.38s var(--ease-spring);
+            box-shadow: 0 2px 10px rgba(212,112,143,0.14);
+            position: relative;
+            overflow: hidden;
+        }
+        .scan-again-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -110%;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,112,143,0.12), transparent);
+            transform: skewX(-22deg);
+            pointer-events: none;
+        }
+        .scan-again-btn:hover::after {
+            left: 160%;
+            transition: left 0.65s ease;
+        }
+        .scan-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(212,112,143,0.32);
+        }
+
+        /* ─── Step cards — glass + lift ─── */
+        .step {
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.82);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+            transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring);
+            will-change: transform;
+            transform-style: preserve-3d;
+        }
+        .step:hover {
+            transform: translateY(-6px);
+            box-shadow:
+                0 18px 48px rgba(61,46,60,0.1),
+                0 6px 18px rgba(61,46,60,0.06),
+                var(--inset-highlight);
+        }
+        .step-number {
+            box-shadow: 0 4px 14px rgba(212,112,143,0.32), var(--inset-highlight);
+            transition: transform 0.35s var(--ease-bounce), box-shadow 0.35s var(--ease-spring);
+        }
+        .step:hover .step-number {
+            transform: scale(1.15) translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212,112,143,0.42), var(--inset-highlight);
+        }
+
+        /* ─── Trust signals — glass card ─── */
+        .trust-signals {
+            background: rgba(255,255,255,0.84);
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+            transition: transform 0.45s var(--ease-spring), box-shadow 0.45s var(--ease-spring);
+        }
+        .trust-signals:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg), var(--inset-highlight);
+        }
+        .trust-item {
+            transition: transform 0.28s var(--ease-spring);
+            border-radius: 12px;
+            padding: 8px;
+            margin: -8px;
+        }
+        .trust-item:hover {
+            transform: translateX(5px);
+            background: rgba(212,112,143,0.04);
+        }
+
+        /* ─── Testimonial cards — glass ─── */
+        .testimonial-card {
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+            transition: transform 0.38s var(--ease-spring), box-shadow 0.38s var(--ease-spring);
+        }
+
+        /* ─── Result sections — glass ─── */
+        .flagged-section,
+        .safe-section,
+        .feedback-section {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.78);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+        }
+
+        /* ─── Verdict card — depth shadow ─── */
+        .verdict-card {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .verdict-card.safe   { box-shadow: 0 10px 40px rgba(91,166,122,0.22),  0 2px 8px rgba(91,166,122,0.12); }
+        .verdict-card.caution{ box-shadow: 0 10px 40px rgba(212,149,43,0.22),  0 2px 8px rgba(212,149,43,0.12); }
+        .verdict-card.avoid  { box-shadow: 0 10px 40px rgba(212,91,111,0.22),  0 2px 8px rgba(212,91,111,0.12); }
+        .verdict-card.unknown{ box-shadow: 0 10px 40px rgba(155,138,184,0.22), 0 2px 8px rgba(155,138,184,0.12); }
+
+        /* ─── Premium banner — glass ─── */
+        .premium-banner {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(26px) saturate(180%);
+            -webkit-backdrop-filter: blur(26px) saturate(180%);
+            border: 2px solid rgba(212,112,143,0.28);
+            box-shadow:
+                0 10px 40px rgba(212,112,143,0.16),
+                0 2px 8px rgba(61,46,60,0.05),
+                var(--inset-highlight);
+            transition: transform 0.45s var(--ease-spring), box-shadow 0.45s var(--ease-spring);
+        }
+        .premium-banner:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 20px 60px rgba(212,112,143,0.22),
+                0 6px 18px rgba(61,46,60,0.07),
+                var(--inset-highlight);
+        }
+
+        /* ─── Auth modal — glass ─── */
+        .auth-modal-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            box-shadow:
+                0 28px 90px rgba(0,0,0,0.2),
+                0 8px 24px rgba(0,0,0,0.1),
+                var(--inset-highlight);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        /* ─── Loading card — glass ─── */
+        .loading-card {
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            box-shadow:
+                0 20px 70px rgba(212,112,143,0.28),
+                0 4px 16px rgba(212,112,143,0.16),
+                var(--inset-highlight);
+            border: 1px solid rgba(255,255,255,0.75);
+        }
+
+        /* ─── FAQ items — glass ─── */
+        .faq-item {
+            background: rgba(255,255,255,0.76);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: border-color 0.25s, box-shadow 0.28s var(--ease-spring), transform 0.28s var(--ease-spring);
+        }
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md), var(--inset-highlight);
+        }
+
+        /* ─── Check chips — glass ─── */
+        .check-chip {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: all 0.3s var(--ease-spring);
+        }
+        .check-chip:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow:
+                0 8px 20px rgba(212,112,143,0.18),
+                var(--inset-highlight);
+            border-color: rgba(212,112,143,0.4);
+        }
+
+        /* ─── Logo hover glow ─── */
+        .logo { transition: filter 0.35s ease; }
+        .logo:hover { filter: drop-shadow(0 4px 14px rgba(212,112,143,0.32)); }
+
+        /* ─── Section title accent underline ─── */
+        .section-title {
+            position: relative;
+            padding-bottom: 12px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 36px; height: 3px;
+            background: linear-gradient(90deg, var(--accent), #E8A4BE);
+            border-radius: 2px;
+        }
+
+        /* ─── Account sections — glass ─── */
+        .account-section {
+            background: rgba(255,255,255,0.84);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.78);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+        }
+
+        /* ─── Scroll reveal system ─── */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(36px);
+            transition:
+                opacity 0.85s var(--ease-spring),
+                transform 0.85s var(--ease-spring);
+        }
+        [data-reveal].revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered children */
+        [data-stagger] > * {
+            opacity: 0;
+            transform: translateY(28px);
+            transition:
+                opacity 0.7s var(--ease-spring),
+                transform 0.7s var(--ease-spring);
+        }
+        [data-stagger].revealed > *:nth-child(1) { opacity:1; transform:none; transition-delay:  0ms; }
+        [data-stagger].revealed > *:nth-child(2) { opacity:1; transform:none; transition-delay: 80ms; }
+        [data-stagger].revealed > *:nth-child(3) { opacity:1; transform:none; transition-delay:160ms; }
+        [data-stagger].revealed > *:nth-child(4) { opacity:1; transform:none; transition-delay:240ms; }
+        [data-stagger].revealed > *:nth-child(5) { opacity:1; transform:none; transition-delay:320ms; }
+        [data-stagger].revealed > *:nth-child(6) { opacity:1; transform:none; transition-delay:400ms; }
+        [data-stagger].revealed > *:nth-child(7) { opacity:1; transform:none; transition-delay:480ms; }
+        [data-stagger].revealed > *:nth-child(8) { opacity:1; transform:none; transition-delay:560ms; }
+
+        /* ─── 3D tilt setup ─── */
+        .tilt-card { transform-style: preserve-3d; position: relative; }
+        .tilt-shine {
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.28) 0%, transparent 65%);
+        }
+        .tilt-card:hover .tilt-shine { opacity: 1; }
+
+        /* ─── Tab panel transition ─── */
+        .scan-panel.entering {
+            animation: panelEnter 0.42s var(--ease-spring) forwards;
+        }
+        @keyframes panelEnter {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(0.99);
+                filter: blur(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* ─── Safe cards — premium ─── */
+        .safe-card {
+            background: rgba(238,247,241,0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.85);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: transform 0.28s var(--ease-spring), box-shadow 0.28s var(--ease-spring);
+        }
+        .safe-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(91,166,122,0.16), var(--inset-highlight);
+        }
+
+        /* ─── Flagged items — hover lift ─── */
+        .flagged-item {
+            transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-spring);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .flagged-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ─── GSAP hero entrance targets ─── */
+        .hero-headline,
+        .hero-subtext,
+        .hero-stats {
+            will-change: transform, opacity;
+        }
+
+        /* ─── prefers-reduced-motion — disable everything ─── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            body {
+                background: var(--bg) !important;
+                animation: none !important;
+            }
+            [data-reveal],
+            [data-stagger] > * {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            .hero-orb { display: none !important; }
+            .scan-btn::after,
+            .premium-btn::after,
+            .scan-again-btn::after { display: none; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           RESPONSIVE LAYOUT & DESKTOP EXPERIENCE
+           ═══════════════════════════════════════════════════════ */
+
+        /* ─── Smooth scrolling ─── */
+        html { scroll-behavior: smooth; }
+
+        /* ─── Header (non-sticky) ─── */
+
+        /* ─── Scan tab active indicator ─── */
+        .scan-tab { position: relative; }
+        .scan-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%; width: 0; height: 3px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 2px;
+            transition: all 0.35s var(--ease-spring);
+            transform: translateX(-50%);
+        }
+        .scan-tab.active::after { width: 50%; }
+
+        /* ─── Input focus micro-interactions ─── */
+        textarea:focus, .barcode-input:focus {
+            transform: scale(1.003);
+            transition: all 0.35s var(--ease-spring);
+        }
+        .example-btn {
+            transition: all 0.25s var(--ease-spring);
+        }
+        .example-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        /* ─── Skeleton loading ─── */
+        .skeleton {
+            background: linear-gradient(90deg, var(--border) 25%, rgba(255,255,255,0.6) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease infinite;
+            border-radius: 8px;
+        }
+        .skeleton-line { height: 14px; margin-bottom: 10px; border-radius: 6px; width: 100%; }
+        .skeleton-line.short { width: 55%; }
+        .skeleton-line.medium { width: 80%; }
+        .skeleton-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+        .skeleton-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .skeleton-badge { width: 48px; height: 22px; border-radius: 8px; flex-shrink: 0; }
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ─── Animated gradient text ─── */
+        .hero-headline .highlight {
+            background: linear-gradient(135deg, var(--accent), #E8A4BE, #D45B6F, var(--accent));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientText 6s ease infinite;
+        }
+        @keyframes gradientText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* ─── Button ripple effect ─── */
+        .scan-btn, .premium-btn { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+            transform: scale(0);
+            animation: ripple-expand 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes ripple-expand {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* ─── Page transition ─── */
+        .container { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .container.hiding { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        .account-page {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .account-page:not(.active) { opacity: 0; transform: translateY(12px); }
+        .account-page.active { opacity: 1; transform: translateY(0); }
+
+        /* ─── Premium banner pricing card classes ─── */
+        .pricing-cards { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+        .pricing-card {
+            flex: 1; min-width: 180px;
+            border-radius: 16px; padding: 24px 20px;
+            border: 2px solid var(--border);
+            text-align: center;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm), var(--inset-highlight);
+            transition: all 0.38s var(--ease-spring);
+            position: relative;
+        }
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg), var(--inset-highlight);
+        }
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(255,245,246,0.9), rgba(252,238,243,0.9));
+            border-color: var(--accent);
+        }
+        .pricing-card-name {
+            font-family: var(--font-display);
+            font-size: 18px; font-weight: 700; margin-bottom: 4px;
+        }
+        .pricing-card-features {
+            font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-bottom: 14px;
+        }
+        .pricing-card-badge {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #fff;
+            font-size: 10px; font-weight: 700;
+            padding: 3px 12px; border-radius: 10px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ─── Footer polish ─── */
+        .footer {
+            padding: 40px 0 24px;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+        }
+        .footer-inner {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 16px; margin-bottom: 20px;
+        }
+        .footer-brand { text-align: center; }
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 22px; font-weight: 700; color: var(--text);
+        }
+        .footer-tagline {
+            font-size: 13px; color: var(--text-muted); font-weight: 300; margin-top: 4px;
+        }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+        .footer-links a {
+            font-size: 12px; color: var(--text-muted); text-decoration: none;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-bottom {
+            text-align: center; padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ─── Additional orbs for depth on desktop ─── */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .ambient-orb.visible { opacity: 1; }
+        .ambient-orb-1 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(212,112,143,0.06) 0%, transparent 70%);
+            top: 40%; right: -80px;
+            animation: orbFloat1 15s ease-in-out infinite;
+        }
+        .ambient-orb-2 {
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(91,166,122,0.05) 0%, transparent 70%);
+            bottom: 20%; left: -60px;
+            animation: orbFloat2 18s ease-in-out infinite 5s;
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           TABLET BREAKPOINT (768px+)
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+                padding: 24px 32px;
+            }
+
+            /* Typography scaling */
+            .logo { font-size: 42px; }
+            .logo-image { width: 60px; height: 60px; }
+            .hero-headline { font-size: 36px; }
+            .hero-subtext { font-size: 16px; max-width: 480px; }
+            .hero-stat-number { font-size: 26px; }
+            .hero-stat-label { font-size: 11px; }
+            .section-title { font-size: 24px; }
+            .step-label { font-size: 13px; }
+            .testimonial-text { font-size: 14px; }
+            .premium-title { font-size: 28px; }
+            .verdict-label { font-size: 32px; }
+            .verdict-emoji { font-size: 72px; }
+
+            /* Spacing */
+            .hero-section { padding: 24px 0 32px; }
+            .how-it-works,
+            .trust-signals,
+            .what-we-check,
+            .social-proof,
+            .faq-section { margin-bottom: 48px; }
+            .section-divider { margin: 16px 0 40px; }
+
+            /* Input section */
+            .input-section { padding: 32px 28px; max-width: 640px; margin: 0 auto 20px; }
+            .scan-tabs { max-width: 640px; margin: 0 auto 20px; }
+
+            /* Results sections */
+            .verdict-card,
+            .flagged-section,
+            .safe-section,
+            .feedback-section { max-width: 640px; margin-left: auto; margin-right: auto; }
+            .share-btn, .scan-again-btn { max-width: 640px; margin-left: auto; margin-right: auto; display: block; }
+            .disclaimer { max-width: 640px; margin-left: auto; margin-right: auto; }
+            .scan-counter { max-width: 640px; margin-left: auto; margin-right: auto; }
+
+            /* Steps */
+            .step { padding: 24px 18px; }
+
+            /* Testimonial cards */
+            .testimonial-card { width: 320px; padding: 24px; }
+
+            /* Pricing cards */
+            .pricing-card { min-width: 220px; padding: 28px 24px; }
+
+            /* Account page */
+            .account-page { max-width: 640px; padding: 24px 32px; }
+
+            /* Footer */
+            .footer-inner { flex-direction: row; justify-content: space-between; }
+            .footer-brand { text-align: left; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           DESKTOP BREAKPOINT (1024px+)
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 960px;
+                padding: 28px 48px;
+            }
+
+            /* Typography scaling */
+            .logo { font-size: 46px; }
+            .logo-image { width: 64px; height: 64px; }
+            .hero-headline { font-size: 48px; letter-spacing: -1px; }
+            .hero-subtext { font-size: 18px; max-width: 540px; }
+            .hero-stat-number { font-size: 30px; }
+            .section-title { font-size: 28px; }
+            .step-label { font-size: 14px; }
+            .testimonial-text { font-size: 15px; }
+            .premium-title { font-size: 32px; }
+
+            /* Spacing */
+            .hero-section { padding: 48px 0 56px; }
+            .how-it-works,
+            .trust-signals,
+            .what-we-check,
+            .social-proof,
+            .faq-section { margin-bottom: 72px; }
+            .section-divider { margin: 24px 0 56px; }
+
+            /* Steps — larger */
+            .step { padding: 32px 24px; }
+            .step-icon { font-size: 36px; }
+            .step-number { width: 32px; height: 32px; font-size: 14px; }
+
+            /* Trust grid — better spacing */
+            .trust-signals { padding: 32px 28px; }
+            .trust-text { font-size: 14px; }
+            .trust-text span { font-size: 12px; }
+
+            /* FAQ */
+            .faq-question { font-size: 15px; padding: 18px 20px; }
+            .faq-answer-inner { padding: 0 20px 18px; font-size: 14px; }
+
+            /* Input section */
+            .input-section { padding: 36px 32px; }
+
+            /* Premium banner */
+            .premium-banner { padding: 40px 32px; }
+
+            /* Hero stats — more breathing room */
+            .hero-stats { gap: 40px; padding: 20px 36px; }
+        }
+
+        /* ═══════════════════════════════════════════════════════
+           WIDE DESKTOP BREAKPOINT (1280px+)
+           ═══════════════════════════════════════════════════════ */
+        @media (min-width: 1280px) {
+            .container {
+                max-width: 1100px;
+                padding: 32px 56px;
+            }
+
+            .hero-headline { font-size: 54px; }
+            .hero-subtext { font-size: 19px; max-width: 580px; }
+            .hero-stat-number { font-size: 34px; }
+
+            /* Spacing */
+            .hero-section { padding: 56px 0 64px; }
+            .how-it-works,
+            .trust-signals,
+            .what-we-check,
+            .social-proof,
+            .faq-section { margin-bottom: 96px; }
+            .section-divider { margin: 32px 0 64px; }
+
+            /* Input section — focused area */
+            .input-section { max-width: 680px; padding: 40px 40px; }
+            .scan-tabs { max-width: 680px; }
+
+            /* Wider pricing cards */
+            .pricing-card { min-width: 260px; padding: 32px 28px; }
+            .pricing-card-name { font-size: 20px; }
+        }
+
+        /* ─── Override prefers-reduced-motion for new additions ─── */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto !important; }
+            .hero-headline .highlight {
+                -webkit-text-fill-color: var(--accent) !important;
+                animation: none !important;
+            }
+            .ambient-orb { display: none !important; }
+            .ripple { display: none !important; }
+            .container.hiding { opacity: 1 !important; transform: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -2315,9 +3233,9 @@
             <span class="section-divider-text">Learn more</span>
         </div>
 
-        <div class="how-it-works" id="howItWorksSection">
+        <div class="how-it-works" id="howItWorksSection" data-reveal>
             <div class="section-title">How It Works</div>
-            <div class="steps">
+            <div class="steps" data-stagger>
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-icon">&#128203;</div>
@@ -2337,9 +3255,9 @@
         </div>
 
         <!-- Trust Signals -->
-        <div class="trust-signals" id="trustSignals">
+        <div class="trust-signals" id="trustSignals" data-reveal>
             <div class="section-title">Built for Peace of Mind</div>
-            <div class="trust-grid">
+            <div class="trust-grid" data-stagger>
                 <div class="trust-item">
                     <div class="trust-icon">&#128218;</div>
                     <div class="trust-text">
@@ -2372,9 +3290,9 @@
         </div>
 
         <!-- What We Check -->
-        <div class="what-we-check" id="whatWeCheck">
+        <div class="what-we-check" id="whatWeCheck" data-reveal>
             <div class="section-title">What We Check For</div>
-            <div class="check-categories">
+            <div class="check-categories" data-stagger>
                 <div class="check-chip"><span class="check-chip-icon">&#128716;</span> Skincare</div>
                 <div class="check-chip"><span class="check-chip-icon">&#127774;</span> Sunscreen</div>
                 <div class="check-chip"><span class="check-chip-icon">&#128135;</span> Haircare</div>
@@ -2387,7 +3305,7 @@
         </div>
 
         <!-- Social Proof / Testimonials -->
-        <div class="social-proof" id="socialProof">
+        <div class="social-proof" id="socialProof" data-reveal>
             <div class="section-title">Trusted by Expecting Parents</div>
             <div class="testimonial-scroll">
                 <div class="testimonial-track">
@@ -2433,7 +3351,7 @@
         </div>
 
         <!-- FAQ Section -->
-        <div class="faq-section" id="faqSection">
+        <div class="faq-section" id="faqSection" data-reveal>
             <div class="section-title">Common Questions</div>
             <div class="faq-item">
                 <button class="faq-question" onclick="toggleFaq(this)">
@@ -2474,28 +3392,41 @@
         </div>
 
         <!-- Premium Upsell -->
-        <div class="premium-banner" id="premiumBanner">
+        <div class="premium-banner" id="premiumBanner" data-reveal>
             <div class="premium-icon">&#10022;</div>
             <div class="premium-title">Go Premium</div>
-            <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;justify-content:center;">
-                <div style="flex:1;min-width:180px;background:var(--accent-light);border-radius:16px;padding:20px;border:2px solid var(--border);text-align:center;">
-                    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px;">Pro</div>
-                    <div class="premium-price" style="margin-bottom:8px;">$9.99/mo</div>
-                    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">20 scans/day<br>5 photo scans<br>Priority support</div>
-                    <button class="premium-btn" style="width:100%;padding:10px;" onclick="startCheckout('pro')">Get Pro</button>
+            <div class="pricing-cards">
+                <div class="pricing-card tilt-target">
+                    <div class="pricing-card-name">Pro</div>
+                    <div class="premium-price">$9.99/mo</div>
+                    <div class="pricing-card-features">20 scans/day<br>5 photo scans<br>Priority support</div>
+                    <button class="premium-btn" style="width:100%;padding:12px;" onclick="startCheckout('pro')">Get Pro</button>
                 </div>
-                <div style="flex:1;min-width:180px;background:linear-gradient(135deg,#FFF5F6,#FCEEF3);border-radius:16px;padding:20px;border:2px solid var(--accent);text-align:center;position:relative;">
-                    <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 12px;border-radius:10px;text-transform:uppercase;letter-spacing:1px;">Best Value</div>
-                    <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px;">Pro+</div>
-                    <div class="premium-price" style="margin-bottom:8px;">$29.99/mo</div>
-                    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">40 scans/day<br>20 photo scans<br>Everything in Pro</div>
-                    <button class="premium-btn" style="width:100%;padding:10px;background:linear-gradient(135deg,var(--accent),#B8456A);" onclick="startCheckout('pro_plus')">Get Pro+</button>
+                <div class="pricing-card featured tilt-target">
+                    <div class="pricing-card-badge">Best Value</div>
+                    <div class="pricing-card-name">Pro+</div>
+                    <div class="premium-price">$29.99/mo</div>
+                    <div class="pricing-card-features">40 scans/day<br>20 photo scans<br>Everything in Pro</div>
+                    <button class="premium-btn" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#B8456A);" onclick="startCheckout('pro_plus')">Get Pro+</button>
                 </div>
             </div>
         </div>
 
         <footer class="footer">
-            <span class="footer-text">&copy; 2026 BumpRadar &middot; <a href="#">Privacy</a></span>
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <div class="footer-logo">BumpRadar<span class="logo-dot" style="animation:none;"></span></div>
+                    <p class="footer-tagline">Helping parents make safer choices.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span class="footer-text">&copy; 2026 BumpRadar. Made with care for expecting families.</span>
+            </div>
         </footer>
     </div>
 
@@ -3869,6 +4800,404 @@
         initAuth();
         checkPremiumStatus();
         updateScanCounter();
+
+        /* ═══════════════════════════════════════════════════════
+           PREMIUM 3D UI — JavaScript Layer
+           ═══════════════════════════════════════════════════════ */
+
+        // ─── Hero floating orbs ───
+        (function addHeroOrbs() {
+            const hero = document.getElementById('heroSection');
+            if (!hero) return;
+            ['hero-orb hero-orb-1', 'hero-orb hero-orb-2', 'hero-orb hero-orb-3'].forEach(cls => {
+                const orb = document.createElement('div');
+                orb.className = cls;
+                hero.appendChild(orb);
+            });
+        })();
+
+        // ─── GSAP Hero Entrance Animation ───
+        (function initGsapHero() {
+            // Wait for GSAP to load (it's defer'd)
+            function runHeroAnim() {
+                if (typeof gsap === 'undefined') { setTimeout(runHeroAnim, 80); return; }
+                const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (prefersReduced) return;
+
+                const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+                tl.from('.logo', { y: -20, opacity: 0, duration: 0.7, clearProps: 'all' })
+                  .from('.tagline', { y: -12, opacity: 0, duration: 0.5, clearProps: 'all' }, '-=0.4')
+                  .from('.hero-headline', { y: 30, opacity: 0, duration: 0.8, clearProps: 'all' }, '-=0.3')
+                  .from('.hero-subtext', { y: 20, opacity: 0, duration: 0.7, clearProps: 'all' }, '-=0.5')
+                  .from('.hero-stats', { y: 18, opacity: 0, scale: 0.97, duration: 0.7, clearProps: 'all' }, '-=0.4')
+                  .from('.scan-tabs', { y: 16, opacity: 0, duration: 0.6, clearProps: 'all' }, '-=0.4')
+                  .from('.input-section', { y: 20, opacity: 0, duration: 0.7, clearProps: 'all' }, '-=0.3');
+            }
+            runHeroAnim();
+        })();
+
+        // ─── Scroll Reveal System ───
+        (function setupScrollReveals() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelectorAll('[data-reveal], [data-stagger]').forEach(el => {
+                    el.classList.add('revealed');
+                });
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px -48px 0px' });
+
+            document.querySelectorAll('[data-reveal], [data-stagger]').forEach(el => observer.observe(el));
+            window._premiumRevealObserver = observer;
+        })();
+
+        // ─── Re-observe after scanAgain (sections come back) ───
+        const _origScanAgain = scanAgain;
+        window.scanAgain = function() {
+            _origScanAgain();
+            requestAnimationFrame(() => {
+                if (window._premiumRevealObserver) {
+                    document.querySelectorAll('[data-reveal]:not(.revealed), [data-stagger]:not(.revealed)')
+                        .forEach(el => window._premiumRevealObserver.observe(el));
+                }
+            });
+        };
+
+        // ─── 3D Tilt Effect ───
+        function initTiltCards() {
+            const noHover = window.matchMedia('(hover: none)').matches;
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (noHover || reduced) return;
+
+            document.querySelectorAll('.step, .testimonial-card').forEach(card => {
+                card.classList.add('tilt-card');
+                if (!card.querySelector('.tilt-shine')) {
+                    const shine = document.createElement('div');
+                    shine.className = 'tilt-shine';
+                    card.appendChild(shine);
+                }
+                card.addEventListener('mousemove', handleTiltMove);
+                card.addEventListener('mouseleave', handleTiltLeave);
+            });
+        }
+
+        function handleTiltMove(e) {
+            const card = this;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+            const dx = (x - cx) / cx;
+            const dy = (y - cy) / cy;
+            const tiltX = dy * -7;
+            const tiltY = dx * 9;
+
+            card.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(8px)`;
+            card.style.boxShadow = `
+                ${-tiltY * 2}px ${Math.abs(tiltX) * 2 + 14}px 40px rgba(61,46,60,0.12),
+                0 4px 12px rgba(61,46,60,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.9)
+            `;
+            card.style.transition = 'transform 0.08s linear, box-shadow 0.08s linear';
+
+            const shine = card.querySelector('.tilt-shine');
+            if (shine) {
+                const px = ((x / rect.width) * 100).toFixed(1);
+                const py = ((y / rect.height) * 100).toFixed(1);
+                shine.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.32) 0%, transparent 65%)`;
+                shine.style.opacity = '1';
+            }
+        }
+
+        function handleTiltLeave() {
+            const card = this;
+            card.style.transition = `transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.55s cubic-bezier(0.34, 1.56, 0.64, 1)`;
+            card.style.transform = '';
+            card.style.boxShadow = '';
+            const shine = card.querySelector('.tilt-shine');
+            if (shine) shine.style.opacity = '0';
+        }
+
+        // ─── Premium Tab Switching with entrance animation ───
+        const _origSwitchTab = window.switchTab || switchTab;
+        window.switchTab = function(mode) {
+            // Remove entering class from all before switching
+            document.querySelectorAll('.scan-panel').forEach(p => p.classList.remove('entering'));
+            _origSwitchTab(mode);
+            const panel = document.getElementById(`panel-${mode}`);
+            if (panel) {
+                // Small rAF delay so the class removal has taken effect
+                requestAnimationFrame(() => {
+                    panel.classList.add('entering');
+                    panel.addEventListener('animationend', () => {
+                        panel.classList.remove('entering');
+                    }, { once: true });
+                });
+            }
+        };
+
+        // ─── Number counter re-trigger when scanAgain restores stats ───
+        (function enhanceCounters() {
+            // Counter is already set up via statObserver above, this is a no-op
+            // but ensures reduced-motion users see final values
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelectorAll('[data-countup]').forEach(el => {
+                    const target = parseFloat(el.dataset.countup);
+                    const suffix = el.dataset.suffix || '';
+                    const decimals = parseInt(el.dataset.decimals) || 0;
+                    el.textContent = target.toFixed(decimals).replace(/\.0$/, '') + suffix;
+                });
+            }
+        })();
+
+        // ─── Header (non-sticky, no scroll effects) ───
+
+        // ─── GSAP ScrollTrigger Animations ───
+        (function initScrollAnimations() {
+            function run() {
+                if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                    setTimeout(run, 100); return;
+                }
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                gsap.registerPlugin(ScrollTrigger);
+                document.body.classList.add('gsap-ready');
+
+                // How-it-works steps
+                gsap.from('.step', {
+                    scrollTrigger: { trigger: '.steps', start: 'top 85%' },
+                    y: 50, opacity: 0, duration: 0.8,
+                    stagger: 0.15, ease: 'power3.out', clearProps: 'all'
+                });
+
+                // Trust items
+                gsap.from('.trust-item', {
+                    scrollTrigger: { trigger: '.trust-grid', start: 'top 85%' },
+                    x: -25, opacity: 0, duration: 0.65,
+                    stagger: 0.1, ease: 'power3.out', clearProps: 'all'
+                });
+
+                // Check chips
+                gsap.from('.check-chip', {
+                    scrollTrigger: { trigger: '.check-categories', start: 'top 85%' },
+                    scale: 0.75, opacity: 0, duration: 0.55,
+                    stagger: 0.06, ease: 'back.out(1.7)', clearProps: 'all'
+                });
+
+                // FAQ items
+                gsap.from('.faq-item', {
+                    scrollTrigger: { trigger: '.faq-section', start: 'top 85%' },
+                    y: 28, opacity: 0, duration: 0.55,
+                    stagger: 0.08, ease: 'power2.out', clearProps: 'all'
+                });
+
+                // Premium banner
+                gsap.from('.premium-banner', {
+                    scrollTrigger: { trigger: '.premium-banner', start: 'top 90%' },
+                    y: 50, opacity: 0, scale: 0.97, duration: 0.9,
+                    ease: 'power3.out', clearProps: 'all'
+                });
+
+                // Pricing cards
+                gsap.from('.pricing-card', {
+                    scrollTrigger: { trigger: '.pricing-cards', start: 'top 85%' },
+                    y: 40, opacity: 0, scale: 0.95, duration: 0.7,
+                    stagger: 0.15, ease: 'back.out(1.4)', clearProps: 'all'
+                });
+
+                // ─── Parallax Effects ───
+                // Hero orbs parallax
+                gsap.utils.toArray('.hero-orb').forEach((orb, i) => {
+                    gsap.to(orb, {
+                        y: -(30 + i * 15),
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: '.hero-section',
+                            start: 'top top',
+                            end: 'bottom top',
+                            scrub: true
+                        }
+                    });
+                });
+
+                // Hero text parallax (subtle)
+                gsap.to('.hero-headline', {
+                    y: -15,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: '.hero-section',
+                        start: 'top top',
+                        end: 'bottom top',
+                        scrub: true
+                    }
+                });
+                gsap.to('.hero-subtext', {
+                    y: -8,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: '.hero-section',
+                        start: 'top top',
+                        end: 'bottom top',
+                        scrub: true
+                    }
+                });
+
+                // Section titles subtle parallax
+                gsap.utils.toArray('.section-title').forEach(title => {
+                    gsap.from(title, {
+                        scrollTrigger: { trigger: title, start: 'top 88%' },
+                        y: 20, opacity: 0, duration: 0.7,
+                        ease: 'power3.out', clearProps: 'all'
+                    });
+                });
+            }
+            run();
+        })();
+
+        // ─── Enhanced 3D Tilt (include pricing cards + tilt-target) ───
+        function initTiltCardsEnhanced() {
+            const noHover = window.matchMedia('(hover: none)').matches;
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (noHover || reduced) return;
+
+            document.querySelectorAll('.step, .testimonial-card, .tilt-target').forEach(card => {
+                if (card.dataset.tiltInit) return;
+                card.dataset.tiltInit = 'true';
+                card.classList.add('tilt-card');
+                if (!card.querySelector('.tilt-shine')) {
+                    const shine = document.createElement('div');
+                    shine.className = 'tilt-shine';
+                    card.appendChild(shine);
+                }
+                card.addEventListener('mousemove', handleTiltMove);
+                card.addEventListener('mouseleave', handleTiltLeave);
+            });
+        }
+
+        // ─── Smooth Page Transitions ───
+        const _origOpenAccountPage = openAccountPage;
+        window.openAccountPage = async function() {
+            const container = document.querySelector('.container');
+            container.classList.add('hiding');
+            await new Promise(r => setTimeout(r, 300));
+            container.style.display = 'none';
+            container.classList.remove('hiding');
+            document.getElementById('accountPage').classList.add('active');
+            // Run original logic for data loading
+            document.getElementById('accountMenu').classList.remove('open');
+            // Populate profile
+            document.getElementById('acctUsernameText').textContent = currentUsername || 'Not set';
+            document.getElementById('acctEmail').textContent = currentUserEmail || '—';
+            const tierEl = document.getElementById('acctTier');
+            if (userTier === 'pro_plus') {
+                tierEl.innerHTML = '<span class="account-tier-badge tier-pro-plus">Pro+</span>';
+            } else if (userTier === 'pro') {
+                tierEl.innerHTML = '<span class="account-tier-badge tier-pro">Pro</span>';
+            } else {
+                tierEl.innerHTML = '<span class="account-tier-badge tier-free">Free</span>';
+            }
+            try {
+                const resp = await fetch(`${API_BASE}/api/v1/auth/me`, { headers: getAuthHeaders() });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const d = new Date(data.created_at);
+                    document.getElementById('acctSince').textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                }
+            } catch (e) {}
+            const subContent = document.getElementById('acctSubscriptionContent');
+            if (userTier === 'free') {
+                subContent.innerHTML = `
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">You're on the free plan. Upgrade to unlock more scans and photo analysis.</p>
+                    <button class="account-action-btn accent" onclick="startCheckout('pro')">Upgrade to Pro — $9.99/mo</button>
+                    <button class="account-action-btn" onclick="startCheckout('pro_plus')">Upgrade to Pro+ — $29.99/mo</button>`;
+            } else {
+                const tierName = userTier === 'pro_plus' ? 'Pro+' : 'Pro';
+                const upgradeBtn = userTier === 'pro'
+                    ? `<button class="account-action-btn" onclick="startCheckout('pro_plus')" style="margin-top:8px;">Upgrade to Pro+ — $29.99/mo</button>` : '';
+                subContent.innerHTML = `
+                    <div class="account-field"><span class="account-field-label">Current plan</span><span class="account-field-value">${tierName}</span></div>
+                    <button class="account-action-btn" onclick="openManageSubscription()" style="margin-top:12px;">Manage Subscription</button>${upgradeBtn}`;
+            }
+            historyOffset = 0;
+            loadScanHistory(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const _origCloseAccountPage = closeAccountPage;
+        window.closeAccountPage = function() {
+            const acctPage = document.getElementById('accountPage');
+            const container = document.querySelector('.container');
+            acctPage.classList.remove('active');
+            setTimeout(() => {
+                container.style.display = '';
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(10px)';
+                requestAnimationFrame(() => {
+                    container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    container.style.opacity = '';
+                    container.style.transform = '';
+                });
+            }, 300);
+        };
+
+        // ─── Skeleton Loading for Scan History ───
+        const _origLoadScanHistory = loadScanHistory;
+        window.loadScanHistory = async function(reset) {
+            if (reset) {
+                const container = document.getElementById('acctHistoryContent');
+                container.innerHTML = `
+                    <div class="skeleton-row"><div class="skeleton skeleton-dot"></div><div style="flex:1"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-line short"></div></div><div class="skeleton skeleton-badge"></div></div>
+                    <div class="skeleton-row"><div class="skeleton skeleton-dot"></div><div style="flex:1"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-line short"></div></div><div class="skeleton skeleton-badge"></div></div>
+                    <div class="skeleton-row"><div class="skeleton skeleton-dot"></div><div style="flex:1"><div class="skeleton skeleton-line medium"></div><div class="skeleton skeleton-line short"></div></div><div class="skeleton skeleton-badge"></div></div>`;
+            }
+            return _origLoadScanHistory(reset);
+        };
+
+        // ─── Button Ripple Effect ───
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.scan-btn, .premium-btn');
+            if (!btn || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const rect = btn.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            btn.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove());
+        });
+
+        // ─── Ambient Orbs (Desktop only) ───
+        (function addAmbientOrbs() {
+            if (window.innerWidth < 768) return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            ['ambient-orb ambient-orb-1', 'ambient-orb ambient-orb-2'].forEach(cls => {
+                const orb = document.createElement('div');
+                orb.className = cls;
+                document.body.appendChild(orb);
+                setTimeout(() => orb.classList.add('visible'), 500);
+            });
+        })();
+
+        // ─── Initialize on DOM ready ───
+        function premiumInit() {
+            initTiltCards();
+            initTiltCardsEnhanced();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', premiumInit);
+        } else {
+            premiumInit();
+        }
     </script>
 </body>
 </html>
